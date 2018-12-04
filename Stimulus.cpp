@@ -3035,7 +3035,7 @@ void CPetal::getCopy(void)
 }
 
 
-CStimulusEllipse::CStimulusEllipse(void)
+CEllipse::CEllipse(void)
 {
 	CD2DStimulus::CD2DStimulus();
 	m_typeName = _T("ellipse");
@@ -3065,7 +3065,7 @@ CStimulusRect::~CStimulusRect(void)
 }
 */
 
-void CStimulusEllipse::Draw(void)
+void CEllipse::Draw(void)
 {
 	if (!theApp.m_drawMode) theApp.BeginDraw();
 	theApp.m_pContext->SetTransform(m_transform);
@@ -3078,7 +3078,7 @@ void CStimulusEllipse::Draw(void)
 }
 
 
-void CStimulusEllipse::Command(unsigned char message[], DWORD messageLength)
+void CEllipse::Command(unsigned char message[], DWORD messageLength)
 {
 	//	TRACE("CStimulusEllipse::Command\n");
 	switch (message[0]) {
@@ -3219,7 +3219,7 @@ void CStimulusRect::GetPos(float pos[2])
 }
 */
 
-void CStimulusEllipse::makeCopy(void)
+void CEllipse::makeCopy(void)
 {
 	CD2DStimulus::makeCopy();
 	//	CStimulus::makeCopy();
@@ -3227,7 +3227,7 @@ void CStimulusEllipse::makeCopy(void)
 }
 
 
-void CStimulusEllipse::getCopy(void)
+void CEllipse::getCopy(void)
 {
 	CD2DStimulus::getCopy();
 	m_deferableParams = m_deferableParamsCopy;

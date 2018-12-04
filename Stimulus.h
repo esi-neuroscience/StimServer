@@ -511,11 +511,11 @@ private:
 	} m_updateFlags;
 };
 
-class CStimulusEllipse :
+class CEllipse :
 	public CD2DStimulus
 {
 public:
-	CStimulusEllipse(void);
+	CEllipse(void);
 	//	~CStimulusRect(void);
 	void makeCopy(void);
 	void getCopy(void);

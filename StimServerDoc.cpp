@@ -536,10 +536,18 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 		case 26:	// Petal
 		case 27: {
 			CPetal* pStim = new CPetal();
-			return message[0] == 26  ? AddStimulusObject(pStim)
-									 : ReplaceStimulusObject(pStim, (WORD*) &message[1]);
+			return message[0] == 26 ? AddStimulusObject(pStim)
+				: ReplaceStimulusObject(pStim, (WORD*)&message[1]);
+		}
+				 break;
+		case 28:	// Ellipse
+		case 29:
+			{
+				CEllipse* pStim = new CEllipse();
+				return message[0] == 28 ? AddStimulusObject(pStim)
+					: ReplaceStimulusObject(pStim, (WORD*)&message[1]);
 			}
-			break;
+		break;
 		case 130:
 			{
 				// load animation path
@@ -615,6 +623,11 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 				return AddAnimationObject(pAnim);
 			}
 			break;
+		default:
+			CString ErrorString;
+			ErrorString.Format(_T("Invalid command. Key=%u, Code=%u"), key, message[0]);
+			COutputList::AddString(ErrorString);
+			return 0;
 		}
 	} else {	// key not 0 --> address stimulus or animation object
 		if ((key & 0x8000) != 0)
