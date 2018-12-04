@@ -183,7 +183,7 @@ redistributing Visual C++ applications in MSDN documentation.
 1.2.5.2 MSt  5-Jan-2018 "typeName"s for Stimuli. CStimulus::SetAnimParam not a pure function
 						anymore. Default Implementation: "Not currently supported".
 1.2.6.0 MSt 15-Jan-2018 "Move to front" command.
-1.2.7.0 MSt 12-Feb-2018 new stimulus: Motion Pictures
+1.2.7.0 MSt 12-Feb-2018 new stimulus: Motion Picture
 1.2.7.1 MSt 19-Feb-2018 CD2DBitmap class
 1.2.8.0 MSt  1-Mar-2018 Flicker animation
 1.2.8.1 MSt  6-Mar-2018 clear "supressed" flag when deassigning an animation
@@ -195,7 +195,8 @@ redistributing Visual C++ applications in MSDN documentation.
 						MotionPicture: support for events signaling end
 1.2.10.0 MSt 1-Jun-2018 new stimulus class: "petal"
 1.2.11.0 MSt 20-Jul-2018 alternate (bottom) position for phote diode; make PD a static class
-
+1.3.0.0	 MSt  3-Dec-2018 ceased support for old pixel shader format
+						 new stimulus: ellipse
 
 
 

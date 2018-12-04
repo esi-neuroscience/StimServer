@@ -3033,3 +3033,218 @@ void CPetal::getCopy(void)
 	}
 	m_updateFlags.all = 0;
 }
+
+
+CStimulusEllipse::CStimulusEllipse(void)
+{
+	CD2DStimulus::CD2DStimulus();
+	m_typeName = _T("ellipse");
+	HRESULT hr;
+	m_deferableParams.color = theApp.m_defaultDrawColor;
+	hr = theApp.m_pContext->CreateSolidColorBrush(
+		theApp.m_defaultDrawColor,
+		&m_pBrush
+	);
+	ASSERT(hr == S_OK);
+	m_deferableParams.outlineColor = theApp.m_defaultOutlineColor;
+	hr = theApp.m_pContext->CreateSolidColorBrush(
+		theApp.m_defaultOutlineColor,
+		&m_pOutlineBrush
+	);
+	ASSERT(hr == S_OK);
+	//	m_deferableParams.transform = theApp.m_contextTransform;
+	//	m_transform = theApp.m_contextTransform;
+	m_deferableParams.ellipse = D2D1::Ellipse(D2D1::Point2F(0.0f, 0.0f), 50.0f, 50.0f);
+	m_updateFlags.all = 0;
+}
+
+/*
+CStimulusRect::~CStimulusRect(void)
+{
+//	CStimulus::~CStimulus();
+}
+*/
+
+void CStimulusEllipse::Draw(void)
+{
+	if (!theApp.m_drawMode) theApp.BeginDraw();
+	theApp.m_pContext->SetTransform(m_transform);
+	if (m_deferableParams.drawMode & 1)
+		theApp.m_pContext->FillEllipse(m_deferableParams.ellipse, m_pBrush);
+	if (m_deferableParams.drawMode & 2)
+		theApp.m_pContext->DrawEllipse(m_deferableParams.ellipse, m_pOutlineBrush,
+			m_deferableParams.strokeWidth);
+	theApp.m_pContext->SetTransform(theApp.m_contextTransform);
+}
+
+
+void CStimulusEllipse::Command(unsigned char message[], DWORD messageLength)
+{
+	//	TRACE("CStimulusEllipse::Command\n");
+	switch (message[0]) {
+	case 1:		// set size
+		if (!theApp.CheckCommandLength(messageLength, 6, _T("Set Ellipse Size")))
+		{
+			m_errorCode = 2;
+			return;
+		}
+		if (message[1] != 1)
+		{
+			m_errorCode = 3;
+			theApp.m_errorMask |= 2;
+			CString errString;
+			errString.Format(_T("Invalid Ellipse command (set size?). Trace: %u %u %u %u %u %u."),
+				message[0], message[1], message[2], message[3], message[4], message[5]);
+			COutputList::AddString(errString);
+			return;
+		}
+		WORD* pSize;
+		pSize = (WORD*)&message[2];
+		float w2;
+		float h2;
+		w2 = (*pSize++ - 1) / 2.0f;
+		h2 = (*pSize - 1) / 2.0f;
+		(theApp.m_deferredMode ? m_deferableParamsCopy : m_deferableParams).ellipse =
+			D2D1::Ellipse(D2D1::Point2F(0.0f, 0.0f), w2, h2);
+		break;
+	case 4:
+		if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Ellipse Orientation")))
+		{
+			m_errorCode = 2;
+			return;
+		}
+		float *pPhi;
+		pPhi = (float*)&message[1];
+		//		TRACE("Rectangle orientation: %f\n", *pPhi);
+		float phi;
+		phi = *pPhi*(float)M_PI / 180.f;
+		D2D1_MATRIX_3X2_F* pTransform;
+		//		pTransform = 
+		//			&(theApp.m_deferredMode ? m_deferableParamsCopy : m_deferableParams).transform;
+		pTransform = &(theApp.m_deferredMode ? m_transformCopy : m_transform);
+		pTransform->_21 = sin(phi);
+		pTransform->_12 = -pTransform->_21;
+		pTransform->_11 = cos(phi);
+		pTransform->_22 = pTransform->_11;
+		break;
+	case 5:
+		if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Ellipse Color")))
+		{
+			m_errorCode = 2;
+			return;
+		}
+		ASSERT(messageLength == 5);
+		if (theApp.m_deferredMode)
+		{
+			m_deferableParamsCopy.color = D2D1::ColorF(
+				message[1] / 255.f, message[2] / 255.f, message[3] / 255.f, message[4] / 255.f);
+			m_updateFlags.color = true;
+		}
+		else
+		{
+			m_deferableParams.color = D2D1::ColorF(
+				message[1] / 255.f, message[2] / 255.f, message[3] / 255.f, message[4] / 255.f);
+			m_pBrush->SetColor(m_deferableParams.color);
+		}
+		break;
+	case 6:
+		if (!theApp.CheckCommandLength(messageLength, 2, _T("Set Ellipse Draw Mode")))
+		{
+			m_errorCode = 2;
+			return;
+		}
+		BYTE* pMode;
+		pMode = &(theApp.m_deferredMode ? m_deferableParamsCopy.drawMode : m_deferableParams.drawMode);
+		*pMode = message[1];
+		break;
+	case 7:
+		WritePipe(&m_errorCode, sizeof(m_errorCode));
+		m_errorCode = 0;
+		break;
+	case 9:
+		if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Ellipse Outline Color")))
+		{
+			m_errorCode = 2;
+			return;
+		}
+		if (theApp.m_deferredMode)
+		{
+			m_deferableParamsCopy.outlineColor = D2D1::ColorF(
+				message[1] / 255.f, message[2] / 255.f, message[3] / 255.f, message[4] / 255.f);
+			m_updateFlags.outlineColor = true;
+		}
+		else
+		{
+			m_deferableParams.outlineColor = D2D1::ColorF(
+				message[1] / 255.f, message[2] / 255.f, message[3] / 255.f, message[4] / 255.f);
+			m_pOutlineBrush->SetColor(m_deferableParams.outlineColor);
+			TRACE("Outline Color: %f %f %f %f\n",
+				m_deferableParams.outlineColor.r,
+				m_deferableParams.outlineColor.g,
+				m_deferableParams.outlineColor.b,
+				m_deferableParams.outlineColor.a);
+		}
+		break;
+	case 10:
+		if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Ellipse Linewidth")))
+		{
+			m_errorCode = 2;
+			return;
+		}
+		float* pWidth;
+		pWidth = &(theApp.m_deferredMode ? m_deferableParamsCopy.strokeWidth : m_deferableParams.strokeWidth);
+		*pWidth = *(float*)&message[1];
+		break;
+	}
+}
+
+/*
+void CStimulusRect::Moveto(bool deferred, float x, float y)
+{
+	D2D1_MATRIX_3X2_F* pTransform;
+	pTransform =
+		&(deferred ? m_deferableParamsCopy : m_deferableParams).transform;
+//	TRACE("Translation: %f, %f\n", pTransform->_31, pTransform->_32);
+	pTransform->_31 = theApp.m_contextTransform._31 + x;
+	pTransform->_32 = theApp.m_contextTransform._32 - y;
+}
+*/
+/*
+void CStimulusRect::GetPos(float pos[2])
+{
+//	pos[0] =  m_deferableParams.transform._31 - theApp.m_contextTransform._31;
+//	pos[1] = -m_deferableParams.transform._32 + theApp.m_contextTransform._32;
+	pos[0] =  m_transform._31 - theApp.m_contextTransform._31;
+	pos[1] = -m_transform._32 + theApp.m_contextTransform._32;
+}
+*/
+
+void CStimulusEllipse::makeCopy(void)
+{
+	CD2DStimulus::makeCopy();
+	//	CStimulus::makeCopy();
+	m_deferableParamsCopy = m_deferableParams;
+}
+
+
+void CStimulusEllipse::getCopy(void)
+{
+	CD2DStimulus::getCopy();
+	m_deferableParams = m_deferableParamsCopy;
+	if (m_updateFlags.color)
+	{
+		m_pBrush->SetColor(m_deferableParams.color);
+	}
+	if (m_updateFlags.outlineColor)
+	{
+		m_pOutlineBrush->SetColor(m_deferableParams.outlineColor);
+	}
+	m_updateFlags.all = 0;
+}
+/*
+bool CStimulusRect::SetAnimParam(BYTE mode, float value)
+{
+		COutputList::AddString(L"Currently linear range animations are not implemented for rectangle stimuli.");
+		return false;
+}
+*/

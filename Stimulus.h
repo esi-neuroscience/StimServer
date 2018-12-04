@@ -511,3 +511,37 @@ private:
 	} m_updateFlags;
 };
 
+class CStimulusEllipse :
+	public CD2DStimulus
+{
+public:
+	CStimulusEllipse(void);
+	//	~CStimulusRect(void);
+	void makeCopy(void);
+	void getCopy(void);
+	void Draw(void);
+	void Command(unsigned char message[], DWORD messageLength);
+	//	bool SetAnimParam(BYTE mode, float value);
+	struct
+	{
+		D2D1_COLOR_F color;
+		D2D1_COLOR_F outlineColor;
+		float strokeWidth;
+		BYTE drawMode;
+		D2D1_ELLIPSE ellipse;
+	} m_deferableParams, m_deferableParamsCopy;
+private:
+	//	void Moveto(bool deferred, float x, float y);
+	//	void GetPos(float pos[2]);
+	ID2D1SolidColorBrush* m_pBrush;
+	ID2D1SolidColorBrush* m_pOutlineBrush;
+	union {
+		unsigned char all;
+		struct {
+			unsigned char color : 1;
+			unsigned char outlineColor : 1;
+			unsigned char unused : 6;
+		};
+	} m_updateFlags;
+};
+
