@@ -3040,6 +3040,7 @@ CEllipse::CEllipse(void)
 	CD2DStimulus::CD2DStimulus();
 	m_typeName = _T("ellipse");
 	HRESULT hr;
+	m_deferableParams.strokeWidth = 2.0f;
 	m_deferableParams.color = theApp.m_defaultDrawColor;
 	hr = theApp.m_pContext->CreateSolidColorBrush(
 		theApp.m_defaultDrawColor,
