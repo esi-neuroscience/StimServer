@@ -3,6 +3,7 @@
 #define NPARAMS 8
 
 //#include "stdafx.h"
+#include "StimServer.h"
 #include "DeviceBuffer.h"
 #include "symbol.h"
 //#include "Anim.h"
@@ -59,15 +60,35 @@ class CD2DStimulus :
 {
 public:
 	CD2DStimulus(void);
-//	~CD2DStimulus(void);
-	virtual void Draw() {};
+	~CD2DStimulus(void);
+	virtual void Draw() { if (!theApp.m_drawMode) theApp.BeginDraw(); };
 	virtual void Command(unsigned char message[], DWORD messageLength) {};
 	virtual void makeCopy(void);
 	virtual void getCopy(void);
 	void Moveto(bool deferred, float x, float y);
 protected:
+	bool ShapeCommand(unsigned char message[], DWORD messageLength);
 	void GetPos(float pos[2]);
 	D2D1_MATRIX_3X2_F m_transform, m_transformCopy;
+	ID2D1SolidColorBrush* m_pBrush;
+	ID2D1SolidColorBrush* m_pOutlineBrush;
+	struct
+	{
+		D2D1_COLOR_F color;
+		D2D1_COLOR_F outlineColor;
+		float strokeWidth;
+		BYTE drawMode;
+	} m_deferableParams, m_deferableParamsCopy;
+	union
+	{
+		unsigned char all;
+		struct
+		{
+			unsigned char color : 1;
+			unsigned char outlineColor : 1;
+			unsigned char unused : 6;
+		};
+	} m_updateFlags;
 };
 
 
@@ -368,15 +389,18 @@ public:
 	void Draw(void);
 	void Command(unsigned char message[], DWORD messageLength);
 //	bool SetAnimParam(BYTE mode, float value);
+	/*
 	struct
 	{
 		D2D1_COLOR_F color;
 		D2D1_RECT_F rect;
 	} m_deferableParams, m_deferableParamsCopy;
+	*/
 private:
 //	void Moveto(bool deferred, float x, float y);
 //	void GetPos(float pos[2]);
-	ID2D1SolidColorBrush* m_pBrush;
+//	ID2D1SolidColorBrush* m_pBrush;
+	/*
 	union {
 		unsigned char all;
 		struct {
@@ -384,6 +408,8 @@ private:
 			unsigned char unused:7;
 		};
 	} m_updateFlags;
+	*/
+	D2D1_RECT_F m_rect, m_rectCopy;
 };
 
 
@@ -469,7 +495,7 @@ class CPetal :
 {
 public:
 	CPetal(void);
-	~CPetal(void);
+//	~CPetal(void);
 	void makeCopy(void);
 	void getCopy(void);
 	void Draw(void);
@@ -479,9 +505,10 @@ private:
 	void Reconstruct(void);
 	CRITICAL_SECTION m_CriticalSection;
 //	void GetPos(float pos[2]);
-	ID2D1SolidColorBrush* m_pBrush;
-	ID2D1SolidColorBrush* m_pOutlineBrush;
+//	ID2D1SolidColorBrush* m_pBrush;
+//	ID2D1SolidColorBrush* m_pOutlineBrush;
 	ID2D1PathGeometry1* m_pPathGeometry;
+	/*
 	struct
 	{
 		D2D1_COLOR_F color;
@@ -489,6 +516,7 @@ private:
 		float strokeWidth;
 		BYTE drawMode;
 	} m_deferableParams, m_deferableParamsCopy;
+	*/
 
 	// The following parameters change the shape of the petal.
 	// If they are modified, the petal has to be reconstructed.
@@ -499,16 +527,7 @@ private:
 		float m_d;
 		float m_q;
 	} m_petalParams, m_petalParamsCopy;
-
-	union {
-		unsigned char all;
-		struct {
-			unsigned char color:1;
-			unsigned char outlineColor:1;
-			unsigned char reconstruct:1;
-			unsigned char unused:5;
-		};
-	} m_updateFlags;
+	bool m_reconstructFlag;
 };
 
 class CEllipse :
@@ -522,6 +541,7 @@ public:
 	void Draw(void);
 	void Command(unsigned char message[], DWORD messageLength);
 	//	bool SetAnimParam(BYTE mode, float value);
+	/*
 	struct
 	{
 		D2D1_COLOR_F color;
@@ -530,11 +550,14 @@ public:
 		BYTE drawMode;
 		D2D1_ELLIPSE ellipse;
 	} m_deferableParams, m_deferableParamsCopy;
+	*/
 private:
+	D2D1_ELLIPSE m_ellipse, m_ellipseCopy;
 	//	void Moveto(bool deferred, float x, float y);
 	//	void GetPos(float pos[2]);
-	ID2D1SolidColorBrush* m_pBrush;
-	ID2D1SolidColorBrush* m_pOutlineBrush;
+//	ID2D1SolidColorBrush* m_pBrush;
+//	ID2D1SolidColorBrush* m_pOutlineBrush;
+	/*
 	union {
 		unsigned char all;
 		struct {
@@ -543,5 +566,6 @@ private:
 			unsigned char unused : 6;
 		};
 	} m_updateFlags;
+	*/
 };
 

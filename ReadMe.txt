@@ -197,6 +197,9 @@ redistributing Visual C++ applications in MSDN documentation.
 1.2.11.0 MSt 20-Jul-2018 alternate (bottom) position for phote diode; make PD a static class
 1.3.0.0	 MSt  3-Dec-2018 ceased support for old pixel shader format
 						 new stimulus: ellipse
+1.3.0.1	 MSt  5-Dec-2018 CD2DStimulus code cleanup
+1.3.1.0  MSt  7-Dec-2018 support outlines for rectangles
+
 
 
 
