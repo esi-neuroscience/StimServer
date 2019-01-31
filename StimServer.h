@@ -43,6 +43,7 @@ public:
 	CWinThread* m_pDisplayThread;
 private:
 	CWinThread* m_pPipeThread;
+	HANDLE m_hStimServerDone;
 public:
 	ID2D1DeviceContext* m_pContext;
 //	HANDLE m_hArrayMutex;

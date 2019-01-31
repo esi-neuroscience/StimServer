@@ -49,6 +49,7 @@ public:
 	CAnim* m_animation;
 protected:
 //	bool CheckCommandLength(DWORD commandLength, DWORD requiredLength, LPCWSTR command);
+	void InvalidCommand(BYTE code);
 	static bool CreatePixelShaderTex(void);
 	WORD m_errorCode;
 	LPCTSTR m_typeName;
@@ -68,6 +69,7 @@ public:
 	void Moveto(bool deferred, float x, float y);
 protected:
 	bool ShapeCommand(unsigned char message[], DWORD messageLength);
+	bool ShapeSetSize(unsigned char message[], DWORD messageLength, float* w2, float* h2);
 	void GetPos(float pos[2]);
 	D2D1_MATRIX_3X2_F m_transform, m_transformCopy;
 	ID2D1SolidColorBrush* m_pBrush;
@@ -172,7 +174,9 @@ protected:
 	CDeviceConstBuffer m_ConstantBuffer;
 	CDeviceConstBuffer m_AnimationBuffer;
 	void Moveto(bool deferred, float x, float y);
-	void GetPos(float pos[2]);
+	void GetPos(float pos[2]) {
+		C3DStimulus::GetPos(pos);
+	};
 	void UpdateConstantBuffer(void) {m_ConstantBuffer.Update(&m_PSconstData.center[0], NPARAMS+4);};
 //	void UpdateColorBuffer(void) {m_ColorBuffer.Update(&m_PScolorData.components[0], 16);};
 	union {
@@ -250,16 +254,16 @@ class CStimulusSymbol :
 public:
 //	CStimulusSymbol(void);
 	CStimulusSymbol(BYTE type, unsigned short size);
-	~CStimulusSymbol(void);
+//	~CStimulusSymbol(void);
 //	bool Init(void);
 	void Draw(void);
 	void Command(unsigned char message[], DWORD messageLength);
 	void makeCopy(void);
 	void getCopy(void);
-//	bool SetAnimParam(BYTE mode, float value);
 private:
-	void Moveto(bool deferred, float x, float y);
-	void GetPos(float pos[2]);
+	
+	void Moveto(bool deferred, float x, float y) {C3DStimulus::Moveto(deferred, x, y);};
+	void GetPos(float pos[2]) {C3DStimulus::GetPos(pos);};
 	struct VS_PARAMS
 	{
 		D3DCOLORVALUE vertexColor;
@@ -304,7 +308,10 @@ private:
 		float dummy[2];
 	} m_VSparams;
 	void Moveto(bool deferred, float x, float y);
-	void GetPos(float pos[2]);
+//	void GetPos(float pos[2]);
+	void GetPos(float pos[2]) {
+		C3DStimulus::GetPos(pos);
+	};
 	CDeviceVertexBuffer m_VertexBuffer;
 	unsigned short m_nParticles;
 	float m_velocity, m_velocityCopy;
@@ -438,7 +445,10 @@ private:
 		float dummy[2];
 	} m_VSparams;
 //	void Moveto(bool deferred, float x, float y);
-	void GetPos(float pos[2]);
+//	void GetPos(float pos[2]);
+	void GetPos(float pos[2]) {
+		C3DStimulus::GetPos(pos);
+	};
 	ID3D11VertexShader* m_pVertexShader;
 	CDeviceVertexBuffer m_VertexBuffer;
 	unsigned short m_nParticles;

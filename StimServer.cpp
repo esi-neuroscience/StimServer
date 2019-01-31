@@ -70,6 +70,8 @@ CStimServerApp::CStimServerApp()
 	m_pVertexShaderShift = NULL;
 //	m_pPixelShaderMin = NULL;
 	m_pRenderTargetView = NULL;
+	m_hStimServerDone = ::CreateEvent(NULL, FALSE, FALSE, _T("StimServerDone"));
+	ASSERT(m_hStimServerDone != NULL);
 }
 
 // The one and only CStimServerApp object
@@ -172,6 +174,7 @@ BOOL CStimServerApp::InitInstance()
 	m_pMainWnd->UpdateWindow();
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
+	VERIFY(SetEvent(m_hStimServerDone));
 	return TRUE;
 }
 
@@ -187,6 +190,7 @@ int CStimServerApp::ExitInstance()
 	AfxOleTerm(FALSE);
 //	VERIFY(CloseHandle(m_hDrawMutex));
 //	VERIFY(CloseHandle(m_hArrayMutex));
+	VERIFY(CloseHandle(m_hStimServerDone));
 	DeleteCriticalSection(&g_criticalMapSection);
 	DeleteCriticalSection(&g_criticalDrawSection);
 	return CWinAppEx::ExitInstance();

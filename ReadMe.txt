@@ -199,6 +199,10 @@ redistributing Visual C++ applications in MSDN documentation.
 						 new stimulus: ellipse
 1.3.0.1	 MSt  5-Dec-2018 CD2DStimulus code cleanup
 1.3.1.0  MSt  7-Dec-2018 support outlines for rectangles
+1.3.1.1	 MSt 10-Dec-2018 implemented outline commands in D2DStimulus class
+1.3.1.2  MSt 31-Jan-2019 StimServerDone event on startup
+
+
 
 
 

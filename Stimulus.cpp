@@ -133,6 +133,15 @@ CStimulus::~CStimulus()
 	}
 }
 
+void CStimulus::InvalidCommand(BYTE code)
+{
+	CString temp;
+	temp.Format(_T("Invalid command code for existing %s stimulus. Code=%u"), m_typeName, code);
+	COutputList::AddString(temp);
+	m_errorCode = 3;
+	theApp.m_errorMask |= 2;
+}
+
 bool CStimulus::SetAnimParam(BYTE mode, float value)
 {
 	CString temp;
@@ -218,14 +227,89 @@ bool CD2DStimulus::ShapeCommand(unsigned char message[], DWORD messageLength)
 			m_pBrush->SetColor(m_deferableParams.color);
 		}
 		break;
+	case 6:
+		temp.Format(_T("set %s draw mode"), m_typeName);
+		//if (!theApp.CheckCommandLength(messageLength, 2, _T("Set Ellipse Draw Mode")))
+		if (!theApp.CheckCommandLength(messageLength, 2, temp))
+		{
+			m_errorCode = 2;
+			return true;
+		}
+		BYTE* pMode;
+		pMode = &(theApp.m_deferredMode ? m_deferableParamsCopy.drawMode : m_deferableParams.drawMode);
+		*pMode = message[1];
+		break;
 	case 7:
 		WritePipe(&m_errorCode, sizeof(m_errorCode));
 		m_errorCode = 0;
+		break;
+	case 9:
+		temp.Format(_T("set %s outline color"), m_typeName);
+		// if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Ellipse Outline Color")))
+		if (!theApp.CheckCommandLength(messageLength, 5, temp))
+		{
+			m_errorCode = 2;
+			return true;
+		}
+		if (theApp.m_deferredMode)
+		{
+			m_deferableParamsCopy.outlineColor = D2D1::ColorF(
+				message[1] / 255.f, message[2] / 255.f, message[3] / 255.f, message[4] / 255.f);
+			m_updateFlags.outlineColor = true;
+		}
+		else
+		{
+			m_deferableParams.outlineColor = D2D1::ColorF(
+				message[1] / 255.f, message[2] / 255.f, message[3] / 255.f, message[4] / 255.f);
+			m_pOutlineBrush->SetColor(m_deferableParams.outlineColor);
+			TRACE("Outline Color: %f %f %f %f\n",
+				m_deferableParams.outlineColor.r,
+				m_deferableParams.outlineColor.g,
+				m_deferableParams.outlineColor.b,
+				m_deferableParams.outlineColor.a);
+		}
+		break;
+	case 10:
+		temp.Format(_T("set %s linewidth"), m_typeName);
+		// if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Ellipse Linewidth")))
+		if (!theApp.CheckCommandLength(messageLength, 5, temp))
+		{
+			m_errorCode = 2;
+			return true;
+		}
+		float* pWidth;
+		pWidth = &(theApp.m_deferredMode ? m_deferableParamsCopy.strokeWidth : m_deferableParams.strokeWidth);
+		*pWidth = *(float*)&message[1];
 		break;
 	default:
 		result = false;
 	}
 	return result;
+}
+
+bool CD2DStimulus::ShapeSetSize(unsigned char message[], DWORD messageLength, float* w2, float* h2)
+{
+	CString temp;
+	temp.Format(_T("set %s size"), m_typeName);
+	if (!theApp.CheckCommandLength(messageLength, 6, temp))
+	{
+		m_errorCode = 2;
+		return false;
+	}
+	if (message[1] != 1)
+	{
+		m_errorCode = 3;
+		theApp.m_errorMask |= 2;
+		temp.Format(_T("Invalid %s command (set size?). Trace: %u %u %u %u %u %u."), m_typeName,
+			message[0], message[1], message[2], message[3], message[4], message[5]);
+		COutputList::AddString(temp);
+		return false;
+	}
+	WORD* pSize;
+	pSize = (WORD*)&message[2];
+	*w2 = (*pSize++ - 1) / 2.0f;
+	*h2 = (*pSize - 1) / 2.0f;
+	return true;
 }
 
 void CD2DStimulus::GetPos(float pos[2])
@@ -426,6 +510,8 @@ void CStimulusPic::Command(unsigned char message[], DWORD messageLength)
 		WritePipe(&m_errorCode, sizeof(m_errorCode));
 		m_errorCode = 0;
 		break;
+	default:
+		InvalidCommand(message[0]);
 	}
 }
 
@@ -595,9 +681,10 @@ void CPixelShader::Command(unsigned char message[], DWORD messageLength)
 		m_errorCode = 0;
 		break;
 	default:
-		CString errString;
-		errString.Format(_T("Invalid command code (%u) for pixel shader."), message[0]);
-		COutputList::AddString(errString);
+		InvalidCommand(message[0]);
+//		CString errString;
+//		errString.Format(_T("Invalid command code (%u) for pixel shader."), message[0]);
+//		COutputList::AddString(errString);
 	}
 }
 
@@ -625,12 +712,12 @@ void CPixelShader::Moveto(bool deferred, float x, float y)
 
 	m_updateFlags.constantBuffer = 1;
 }
-
+/*
 void CPixelShader::GetPos(float pos[2])
 {
 	C3DStimulus::GetPos(pos);
 }
-
+*/
 bool CPixelShader::SetAnimParam(BYTE mode, float value)
 {
 //	TRACE("Param: %u, Value: %f\n", mode, value);
@@ -1496,12 +1583,12 @@ void CStimulusPart::Moveto(bool deferred, float x, float y)
 	C3DStimulus::Moveto(deferred, x, y);
 }
 
-
+/*
 void CStimulusPart::GetPos(float pos[2])
 {
 	C3DStimulus::GetPos(pos);
 }
-
+*/
 
 void CStimulusPart::Command(unsigned char message[], DWORD messageLength)
 {
@@ -1591,6 +1678,8 @@ void CStimulusPart::Command(unsigned char message[], DWORD messageLength)
 		WritePipe(&m_errorCode, sizeof(m_errorCode));
 		m_errorCode = 0;
 		break;
+	default:
+		InvalidCommand(message[0]);
 	}
 }
 
@@ -1627,13 +1716,6 @@ void CStimulusPart::UpdateParticleSize(void)
 	m_symbol->DrawTexture();
 }
 
-/*
-bool CStimulusPart::SetAnimParam(BYTE mode, float value)
-{
-		COutputList::AddString(L"Currently linear range animations are not implemented for particle stimuli.");
-		return false;
-}
-*/
 
 CStimulusSymbol::CStimulusSymbol(BYTE type, unsigned short size)
 {
@@ -1643,12 +1725,7 @@ CStimulusSymbol::CStimulusSymbol(BYTE type, unsigned short size)
 	m_vp.Height = (float) size;
     m_vp.MinDepth = 0.0f;
 	m_vp.MaxDepth = 1.0f;
-	if (m_pVertexShaderCol == NULL) {
-		HRESULT hr = CStimServerApp::createVertexShaderCol();
-		ASSERT(SUCCEEDED(hr));
-		if( FAILED( hr ) )
-			ASSERT(false);
-	}
+	if (m_pVertexShaderCol == NULL) VERIFY(SUCCEEDED(CStimServerApp::createVertexShaderCol()));
 	m_VSparams.vertexColor = theApp.m_defaultDrawColor;
 	HRESULT hr = m_ParamsBuffer.Init(&m_VSparams, sizeof(m_VSparams));
 	ASSERT(SUCCEEDED(hr));
@@ -1665,18 +1742,15 @@ CStimulusSymbol::CStimulusSymbol(BYTE type, unsigned short size)
 	default:
 		;
 	}
-	if (pPixelShaderTex == NULL) {
-		if (!CreatePixelShaderTex()) ASSERT(false);
-	}
+	if (pPixelShaderTex == NULL) VERIFY(SUCCEEDED(CreatePixelShaderTex()));
 	C3DStimulus::Moveto(false, 0.0f, 0.0f);		// move viewport
 }
 
-
+/*
 CStimulusSymbol::~CStimulusSymbol(void)
 {
-//	CStimulus::~CStimulus();
 }
-
+*/
 
 void CStimulusSymbol::makeCopy(void)
 {
@@ -1694,20 +1768,6 @@ void CStimulusSymbol::getCopy(void)
 //	TRACE("Constant Flag: %u, ColorFlag: %u\n", m_updateFlags.constantBuffer, m_updateFlags.colorBuffer);
 	m_updateFlags.all = 0;
 }
-
-
-void CStimulusSymbol::Moveto(bool deferred, float x, float y)
-{
-	C3DStimulus::Moveto(deferred, x, y);
-//	TRACE("Move Symbol to: %f, %f\n", x, y);
-}
-
-
-void CStimulusSymbol::GetPos(float pos[2])
-{
-	C3DStimulus::GetPos(pos);
-}
-
 
 void CStimulusSymbol::Draw(void)
 {
@@ -1791,6 +1851,8 @@ void CStimulusSymbol::Command(unsigned char message[], DWORD messageLength)
 		WritePipe(&m_errorCode, sizeof(m_errorCode));
 		m_errorCode = 0;
 		break;
+	default:
+		InvalidCommand(message[0]);
 	}
 }
 
@@ -1947,7 +2009,7 @@ void CStimBmpBrush::Command(unsigned char message[], DWORD messageLength)
 		(theApp.m_deferredMode ? m_shiftCopy : m_shift) = *(D2D1_VECTOR_2F*) & message[1];
 		break;
 	default:
-		;
+		InvalidCommand(message[0]);
 	}
 }
 
@@ -2115,54 +2177,15 @@ void CStimulusRect::Command(unsigned char message[], DWORD messageLength)
 	bool isShapeCommand = ShapeCommand(message, messageLength);
 	if (!isShapeCommand) switch (message[0]) {
 	case 1:		// set size
-		if (!theApp.CheckCommandLength(messageLength, 6, _T("Set Rectangle Size")))
-		{
-			m_errorCode = 2;
-			return;
-		}
-		if (message[1] != 1)
-		{
-			m_errorCode = 3;
-			theApp.m_errorMask |= 2;
-			CString errString;
-			errString.Format(_T("Invalid Rectangle command (set size?). Trace: %u %u %u %u %u %u."),
-				message[0], message[1], message[2], message[3], message[4], message[5]);
-			COutputList::AddString(errString);
-			return;
-		}
-		WORD* pSize;
-		pSize = (WORD*) &message[2];
-		float w2;
-		float h2;
-		w2 = (*pSize++ - 1) / 2.0f;
-		h2 = (*pSize   - 1) / 2.0f;
-		//(theApp.m_deferredMode ? m_deferableParamsCopy : m_deferableParams).rect =
-		//	D2D1::RectF(-w2, -h2, w2, h2);
+		float w2, h2;
+		ShapeSetSize(message, messageLength, &w2, &h2);
 		(theApp.m_deferredMode ? m_rectCopy : m_rect) = D2D1::RectF(-w2, -h2, w2, h2);
 		break;
+	default:
+		InvalidCommand(message[0]);
 	}
 }
 
-/*
-void CStimulusRect::Moveto(bool deferred, float x, float y)
-{
-	D2D1_MATRIX_3X2_F* pTransform;
-	pTransform = 
-		&(deferred ? m_deferableParamsCopy : m_deferableParams).transform;
-//	TRACE("Translation: %f, %f\n", pTransform->_31, pTransform->_32);
-	pTransform->_31 = theApp.m_contextTransform._31 + x;
-	pTransform->_32 = theApp.m_contextTransform._32 - y;
-}
-*/
-/*
-void CStimulusRect::GetPos(float pos[2])
-{
-//	pos[0] =  m_deferableParams.transform._31 - theApp.m_contextTransform._31;
-//	pos[1] = -m_deferableParams.transform._32 + theApp.m_contextTransform._32;
-	pos[0] =  m_transform._31 - theApp.m_contextTransform._31;
-	pos[1] = -m_transform._32 + theApp.m_contextTransform._32;
-}
-*/
 
 void CStimulusRect::makeCopy(void)
 {
@@ -2451,12 +2474,12 @@ void CStimulusParticle::Draw()
 	*/
 	theApp.m_pImmediateContext->Draw( m_nParticles, 0 );	// (Vertex Count, Start)
 }
-
+/*
 void CStimulusParticle::GetPos(float pos[2])
 {
 	C3DStimulus::GetPos(pos);
 }
-
+*/
 void CStimulusParticle::Command(unsigned char message[], DWORD messageLength)
 {
 //	TRACE("CStimulusPart::Command\n");
@@ -2545,6 +2568,8 @@ void CStimulusParticle::Command(unsigned char message[], DWORD messageLength)
 		WritePipe(&m_errorCode, sizeof(m_errorCode));
 		m_errorCode = 0;
 		break;
+	default:
+		InvalidCommand(message[0]);
 	}
 }
 /*
@@ -2945,50 +2970,9 @@ void CPetal::Command(unsigned char message[], DWORD messageLength)
 			return;
 		}
 		break;
-	case 6:
-		if (!theApp.CheckCommandLength(messageLength, 2, _T("Set Petal Draw Mode")))
-		{
-			m_errorCode = 2;
-			return;
-		}
-		BYTE* pMode;
-		pMode = &(theApp.m_deferredMode ? m_deferableParamsCopy.drawMode : m_deferableParams.drawMode);
-		*pMode = message[1];
-		break;
-	case 9:
-		if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Petal Outline Color")))
-		{
-			m_errorCode = 2;
-			return;
-		}
-		if (theApp.m_deferredMode)
-		{
-			m_deferableParamsCopy.outlineColor = D2D1::ColorF(
-				message[1]/255.f, message[2]/255.f, message[3]/255.f, message[4]/255.f);
-			m_updateFlags.outlineColor = true;
-		}
-		else
-		{
-			m_deferableParams.outlineColor = D2D1::ColorF(
-				message[1]/255.f, message[2]/255.f, message[3]/255.f, message[4]/255.f);
-			m_pOutlineBrush->SetColor(m_deferableParams.outlineColor);
-			TRACE("Outline Color: %f %f %f %f\n",
-				m_deferableParams.outlineColor.r,
-				m_deferableParams.outlineColor.g,
-				m_deferableParams.outlineColor.b,
-				m_deferableParams.outlineColor.a);
-		}
-		break;
-	case 10:
-		if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Petal Linewidth")))
-		{
-			m_errorCode = 2;
-			return;
-		}
-		float* pWidth;
-		pWidth = &(theApp.m_deferredMode ? m_deferableParamsCopy.strokeWidth : m_deferableParams.strokeWidth);
-		*pWidth = *(float*) &message[1];
-		break;
+	default:
+		InvalidCommand(message[0]);
+		return;
 	}
 }
 
@@ -3052,7 +3036,8 @@ void CEllipse::Command(unsigned char message[], DWORD messageLength)
 {
 	//	TRACE("CStimulusEllipse::Command\n");
 	bool isShapeCommand = ShapeCommand(message, messageLength);
-	if (!isShapeCommand) switch (message[0]) {
+	if (!isShapeCommand) switch (message[0])
+	{
 	case 1:		// set size
 		if (!theApp.CheckCommandLength(messageLength, 6, _T("Set Ellipse Size")))
 		{
@@ -3079,73 +3064,11 @@ void CEllipse::Command(unsigned char message[], DWORD messageLength)
 		(theApp.m_deferredMode ? m_ellipseCopy : m_ellipse) =
 			D2D1::Ellipse(D2D1::Point2F(0.0f, 0.0f), w2, h2);
 		break;
-	case 6:
-		if (!theApp.CheckCommandLength(messageLength, 2, _T("Set Ellipse Draw Mode")))
-		{
-			m_errorCode = 2;
-			return;
-		}
-		BYTE* pMode;
-		pMode = &(theApp.m_deferredMode ? m_deferableParamsCopy.drawMode : m_deferableParams.drawMode);
-		*pMode = message[1];
-		break;
-	case 9:
-		if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Ellipse Outline Color")))
-		{
-			m_errorCode = 2;
-			return;
-		}
-		if (theApp.m_deferredMode)
-		{
-			m_deferableParamsCopy.outlineColor = D2D1::ColorF(
-				message[1] / 255.f, message[2] / 255.f, message[3] / 255.f, message[4] / 255.f);
-			m_updateFlags.outlineColor = true;
-		}
-		else
-		{
-			m_deferableParams.outlineColor = D2D1::ColorF(
-				message[1] / 255.f, message[2] / 255.f, message[3] / 255.f, message[4] / 255.f);
-			m_pOutlineBrush->SetColor(m_deferableParams.outlineColor);
-			TRACE("Outline Color: %f %f %f %f\n",
-				m_deferableParams.outlineColor.r,
-				m_deferableParams.outlineColor.g,
-				m_deferableParams.outlineColor.b,
-				m_deferableParams.outlineColor.a);
-		}
-		break;
-	case 10:
-		if (!theApp.CheckCommandLength(messageLength, 5, _T("Set Ellipse Linewidth")))
-		{
-			m_errorCode = 2;
-			return;
-		}
-		float* pWidth;
-		pWidth = &(theApp.m_deferredMode ? m_deferableParamsCopy.strokeWidth : m_deferableParams.strokeWidth);
-		*pWidth = *(float*)&message[1];
-		break;
+	default:
+		InvalidCommand(message[0]);
 	}
 }
 
-/*
-void CStimulusRect::Moveto(bool deferred, float x, float y)
-{
-	D2D1_MATRIX_3X2_F* pTransform;
-	pTransform =
-		&(deferred ? m_deferableParamsCopy : m_deferableParams).transform;
-//	TRACE("Translation: %f, %f\n", pTransform->_31, pTransform->_32);
-	pTransform->_31 = theApp.m_contextTransform._31 + x;
-	pTransform->_32 = theApp.m_contextTransform._32 - y;
-}
-*/
-/*
-void CStimulusRect::GetPos(float pos[2])
-{
-//	pos[0] =  m_deferableParams.transform._31 - theApp.m_contextTransform._31;
-//	pos[1] = -m_deferableParams.transform._32 + theApp.m_contextTransform._32;
-	pos[0] =  m_transform._31 - theApp.m_contextTransform._31;
-	pos[1] = -m_transform._32 + theApp.m_contextTransform._32;
-}
-*/
 
 void CEllipse::makeCopy(void)
 {
@@ -3160,7 +3083,7 @@ void CEllipse::getCopy(void)
 	m_ellipse = m_ellipseCopy;
 }
 /*
-bool CStimulusRect::SetAnimParam(BYTE mode, float value)
+bool CStimulusEllipse::SetAnimParam(BYTE mode, float value)
 {
 		COutputList::AddString(L"Currently linear range animations are not implemented for rectangle stimuli.");
 		return false;
