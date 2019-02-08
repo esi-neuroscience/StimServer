@@ -738,18 +738,51 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 				WritePipe(&buffer, sizeof(buffer));
 //				TRACE("Position: %f, %f, Size: %u\n", buffer[0], buffer[1], sizeof(buffer));
 				break;
-			case 14:	// move to front
-				{
-				map <WORD, CStimulus*> :: const_reverse_iterator cNewIter;
+			case 14:	// stimulus order
 				EnterCriticalSection(&g_criticalMapSection);
-				m_stimuli.erase(cIter);	// remove stimulus from old position
-				cNewIter = m_stimuli.crbegin();
-				WORD newKey;
-				newKey = cNewIter->first + 1;	// ... check for bit 15!!!
-				m_stimuli[newKey] = pStim;
-				LeaveCriticalSection(&g_criticalMapSection);
-				WritePipe(&newKey, sizeof(newKey));
+				switch (messageLength)
+				{
+				case 1:	// move to front
+					{
+					map <WORD, CStimulus*> ::const_reverse_iterator cNewIter;
+					m_stimuli.erase(cIter);	// remove stimulus from old position
+					cNewIter = m_stimuli.crbegin();
+					WORD newKey;
+					newKey = cNewIter->first + 1;	// ... check for bit 15!!!
+					m_stimuli[newKey] = pStim;
+					WritePipe(&newKey, sizeof(newKey));
+					}
+					break;
+				case 3:	// swap stimuli
+					{
+					CStimulus* p2ndStim;
+					WORD key2 = *((WORD*)&message[1]);
+					map <WORD, CStimulus*> ::const_iterator c2ndIter = m_stimuli.find(key2);
+					if (c2ndIter == m_stimuli.cend())
+					{
+						LeaveCriticalSection(&g_criticalMapSection);
+						CString ErrorString;
+						ErrorString.Format(_T("Unexisting swap partner (key=%i) for stimulus object (key=%i)."), key2, key);
+						COutputList::AddString(ErrorString);
+						theApp.m_errorCode = 2;
+						theApp.m_errorMask |= 1;
+						return -1;
+					}
+					p2ndStim = c2ndIter->second;
+					m_stimuli[key] = p2ndStim;
+					m_stimuli[key2] = pStim;
+					}
+					break;
+				default:
+					LeaveCriticalSection(&g_criticalMapSection);
+					CString ErrorString;
+					ErrorString.Format(_T("Invalid length (%u) of stimuli order command."), messageLength);
+					COutputList::AddString(ErrorString);
+					theApp.m_errorCode = 7;
+					theApp.m_errorMask |= 1;
+					return -1;
 				}
+				LeaveCriticalSection(&g_criticalMapSection);
 				break;
 			default:
 				ASSERT(pStim);
