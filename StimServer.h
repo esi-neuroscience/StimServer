@@ -75,6 +75,8 @@ public:
 	bool m_deferredMode;
 	short m_errorMask;
 	short m_errorCode;
+	static HANDLE m_hDisplayThreadReady;
+	static HANDLE m_hPipeThreadReady;
 };
 
 extern CStimServerApp theApp;

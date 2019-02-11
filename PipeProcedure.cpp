@@ -32,6 +32,7 @@ UINT PipeProcedure( LPVOID pParam ) {
 		0,			// default time out 50ms
 		NULL);
 	ASSERT(hPipe != INVALID_HANDLE_VALUE);
+	VERIFY(SetEvent(CStimServerApp::m_hPipeThreadReady));
 
 	// Documentation of "CreateNamedPipe Function" states:
 	// The pipe server should not perform a blocking read operation until the pipe client has started.

@@ -550,7 +550,7 @@ UINT DisplayProcedure( LPVOID pParam )
 #ifdef PERFSTAT
 	CPerfStat perfStat(1000);
 #endif
-
+	VERIFY(SetEvent(CStimServerApp::m_hDisplayThreadReady));
 //	bool docValid = true;
 	do
 	{

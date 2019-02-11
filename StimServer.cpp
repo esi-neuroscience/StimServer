@@ -29,6 +29,8 @@ ID2D1SolidColorBrush* CStimServerApp::m_pWhiteBrush;
 D2D1::ColorF CStimServerApp::m_defaultDrawColor = D2D1::ColorF(1.0f, 1.0f, 1.0f, 1.0f);
 D2D1::ColorF CStimServerApp::m_defaultOutlineColor = D2D1::ColorF(0.0f, 0.0f, 0.0f, 1.0f);
 D2D1_MATRIX_3X2_F CStimServerApp::m_contextTransform;
+HANDLE CStimServerApp::m_hDisplayThreadReady;
+HANDLE CStimServerApp::m_hPipeThreadReady;
 
 CStimServerDoc* g_pDoc;
 
@@ -165,6 +167,8 @@ BOOL CStimServerApp::InitInstance()
 //	ASSERT(m_hArrayMutex);
 //	m_hDrawMutex = CreateMutex(NULL, FALSE, NULL);
 //	ASSERT(m_hDrawMutex);
+	VERIFY(m_hDisplayThreadReady = CreateEvent(NULL, false, false, NULL));
+	VERIFY(m_hPipeThreadReady = CreateEvent(NULL, false, false, NULL));
 	m_pDisplayThread = AfxBeginThread(DisplayProcedure, m_pMainWnd);
 	m_pPipeThread = AfxBeginThread(PipeProcedure, NULL);
 
@@ -172,8 +176,11 @@ BOOL CStimServerApp::InitInstance()
 //	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->ShowWindow(SW_MINIMIZE);
 	m_pMainWnd->UpdateWindow();
-	// call DragAcceptFiles only if there's a suffix
-	//  In an SDI app, this should occur after ProcessShellCommand
+
+	HANDLE handles[2] = {m_hDisplayThreadReady, m_hPipeThreadReady};
+	VERIFY(WaitForMultipleObjects(2, &handles[0], TRUE, INFINITE) == WAIT_OBJECT_0);
+	VERIFY(CloseHandle(m_hDisplayThreadReady));
+	VERIFY(CloseHandle(m_hPipeThreadReady));
 	VERIFY(SetEvent(m_hStimServerDone));
 	return TRUE;
 }

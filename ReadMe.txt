@@ -202,7 +202,7 @@ redistributing Visual C++ applications in MSDN documentation.
 1.3.1.1	 MSt 10-Dec-2018 implemented outline commands in D2DStimulus class
 1.3.1.2  MSt 31-Jan-2019 StimServerDone event on startup
 1.3.1.3  MSt 08-Feb-2019 New command: swap (key of) two stimuli
-
+1.3.1.4  MSt 11-Feb-2019 Wait for threads to become ready before setting done event
 
 
 
