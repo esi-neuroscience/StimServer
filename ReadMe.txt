@@ -203,7 +203,7 @@ redistributing Visual C++ applications in MSDN documentation.
 1.3.1.2  MSt 31-Jan-2019 StimServerDone event on startup
 1.3.1.3  MSt 08-Feb-2019 New command: swap (key of) two stimuli
 1.3.1.4  MSt 11-Feb-2019 Wait for threads to become ready before setting done event
-
+1.3.1.5	 MSt 20-Feb-2019 Straight Line Segment Motion Animation is independent of frame rate
 
 
 

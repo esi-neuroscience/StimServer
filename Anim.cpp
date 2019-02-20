@@ -213,7 +213,8 @@ void CAnimLineSegPath::Advance(void)
 		float dy = (float) (m_pPathVertices[2*(m_iSegment+1)+1] - m_y0);
 		float segmentLength = sqrtf(dx*dx + dy*dy);
 //		TRACE("dx: %f, dy: %f, Length: %f\n", dx, dy, segmentLength); 
-		m_nThisSegment = (long) (60.0f * segmentLength / (float) m_speed);
+//		m_nThisSegment = (long)(60.0f * segmentLength / (float)m_speed);
+		m_nThisSegment = (long) (g_frameRate * segmentLength / (float) m_speed);
 		if (m_nThisSegment == 0)
 		{
 			if (++m_iSegment == m_nPathVertices-1) Finalize();
