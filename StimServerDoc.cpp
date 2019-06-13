@@ -281,13 +281,13 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 				return -1;
 				break;
 			case 3:	// [00 1 3 a] set default final action for animations
-				{
-					BYTE temp = CAnim::m_defaultFinalActionMask;
+			{
+				BYTE temp = CAnim::m_defaultFinalActionMask;
 				CAnim::m_defaultFinalActionMask = message[2];
 				TRACE("Set Default from %u to %u\n", temp, CAnim::m_defaultFinalActionMask);
 				return -1;
-				}
-				break;
+			}
+			break;
 			case 4: // [00 1 4] query and reset global error mask
 				short errorMask;
 				errorMask = theApp.m_errorMask;

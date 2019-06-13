@@ -80,7 +80,6 @@ private:
 	unsigned short m_nPathVertices;
 	unsigned long m_index;
 	BYTE m_iSegment;
-//	bool m_isRunning;
 	float m_vx;
 	float m_vy;
 	short m_x0;

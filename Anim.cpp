@@ -139,7 +139,6 @@ CAnimLineSegPath::CAnimLineSegPath(WORD speed)
 	, m_nPathVertices(0)
 	, m_index(0)
 	, m_iSegment(0)
-//	, m_isRunning(false)
 	, m_vx(0)
 	, m_vy(0)
 	, m_x0(0)
@@ -191,7 +190,6 @@ void CAnimLineSegPath::Command(unsigned char message[], DWORD messageLength)
 			}
 			m_index = 0;
 			m_iSegment = 0;
-//			m_isRunning = true;
 		}
 		break;
 	default:
@@ -202,7 +200,6 @@ void CAnimLineSegPath::Command(unsigned char message[], DWORD messageLength)
 
 void CAnimLineSegPath::Advance(void)
 {
-//	if (!m_isRunning) return;
 	if ((!m_pStimulus) || (!m_nPathVertices)) return;
 	if (m_index == 0)
 	{
@@ -213,15 +210,15 @@ void CAnimLineSegPath::Advance(void)
 		float dy = (float) (m_pPathVertices[2*(m_iSegment+1)+1] - m_y0);
 		float segmentLength = sqrtf(dx*dx + dy*dy);
 //		TRACE("dx: %f, dy: %f, Length: %f\n", dx, dy, segmentLength); 
-//		m_nThisSegment = (long)(60.0f * segmentLength / (float)m_speed);
 		m_nThisSegment = (long) (g_frameRate * segmentLength / (float) m_speed);
+		if (m_iSegment == m_nPathVertices-2) m_nThisSegment++;	// last segment includes end point
 		if (m_nThisSegment == 0)
 		{
 			if (++m_iSegment == m_nPathVertices-1) Finalize();
 			return;
 		}
-		m_vx = dx / (float) m_nThisSegment;
-		m_vy = dy / (float) m_nThisSegment;
+		m_vx = dx / (float) (m_nThisSegment - 1);
+		m_vy = dy / (float) (m_nThisSegment - 1);
 	}
 //	TRACE("%f %f\n", (float) m_x0 + (float) m_index * m_vx, 
 //		(float) m_y0 + (float) m_index * m_vy);
@@ -243,8 +240,6 @@ void CAnimLineSegPath::Finalize(void)
 {
 	m_index = 0;
 	m_iSegment = 0;
-//	if (m_finalActionMask &  4) CPhotoDiode::CSR.lit ^= 1;
-//	if (!(m_finalActionMask & 16)) Deassign();
 	CAnim::Finalize();
 }
 
