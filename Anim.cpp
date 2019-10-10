@@ -93,7 +93,6 @@ bool CAnimationPath::Init(LPCWSTR wzFilename)
 	UINT nEntries = (UINT) animFile.m_dims[1];
 
 	m_pPathCoords = new D2D1_POINT_2F[nEntries];
-//	if (!animFile.ReadPoints2f(m_pPathCoords)) return false;
 	if (!animFile.ReadPoints2f((float*) m_pPathCoords)) return false;
 	m_nPathCoords = nEntries;
 	TRACE("Motion path created\n");
@@ -104,17 +103,15 @@ bool CAnimationPath::Init(LPCWSTR wzFilename)
 void CAnimationPath::Command(unsigned char message[], DWORD messageLength)
 {
 	TRACE("message[0]: %u, length: %u\n", message[0], messageLength);
-	switch (message[0]) {
-	case 0: {
+	switch (message[0])
+	{
+	case 0:
 		switch (messageLength)
 		{
 		case 4:	// assign / unassign
 			break;
 		}
-//		bool* pEnabled = deferred ? &m_enabledCopy : &m_enabled;
-//		*pEnabled = message[1];
-		}
-		break;
+	break;
 	}
 }
 
@@ -126,8 +123,6 @@ void CAnimationPath::Advance(void)
 	if (++m_index == m_nPathCoords)
 	{	// final action
 		m_index = 0;
-//		if (m_finalActionMask &  4) CPhotoDiode::CSR.lit ^= 1;
-//		if (!(m_finalActionMask & 16)) Deassign();	// deassign if not restart
 		CAnim::Finalize();
 	}
 }
@@ -161,18 +156,6 @@ void CAnimLineSegPath::Command(unsigned char message[], DWORD messageLength)
 	TRACE("message[0]: %u, length: %u\n", message[0], messageLength);
 	switch (message[0])
 	{
-		/*
-	case 0: {
-		switch (messageLength)
-		{
-		case 4:	// assign / unassign
-			break;
-		}
-//		bool* pEnabled = deferred ? &m_enabledCopy : &m_enabled;
-//		*pEnabled = message[1];
-		}
-		break;
-		*/
 	case 11:
 		{
 			WORD nCurrent = m_nPathVertices;
@@ -292,26 +275,6 @@ void CAnimHarmonic::Command(unsigned char message[], DWORD messageLength)
 	case 6:
 		m_phi = (*(float*) &message[1])/180.0f * (float) M_PI;
 		break;
-	/*
-	case 11:
-		{
-			WORD nCurrent = m_nPathVertices;
-			m_nPathVertices = ((WORD) messageLength-1) / 4;
-			ASSERT(m_nPathVertices * 4 == (messageLength-1));
-			if (m_pPathVertices && (m_nPathVertices != nCurrent)) delete m_pPathVertices;
-			if (m_nPathVertices != nCurrent) m_pPathVertices = new short[m_nPathVertices*2];
-			short* pMess = (short*) &message[1];
-			short* pDest = m_pPathVertices;
-			for (BYTE i=0; i < m_nPathVertices; i++)
-			{
-				*pDest++ = *pMess++;	// x
-				*pDest++ = *pMess++;	// y
-			}
-			m_index = 0;
-			m_iSegment = 0;
-		}
-		break;
-	*/
 	default:
 		ASSERT(false);
 	}
@@ -326,13 +289,6 @@ void CAnimHarmonic::Advance(void)
 	float y = r*sinf(m_direction);
 	m_pStimulus->Moveto(false, x, y);
 	if (theApp.m_deferredMode) m_pStimulus->Moveto(true, x, y);
-	/*
-	if (++m_index == m_nPathCoords)
-	{	// final action
-		m_index = 0;
-		CAnim::Finalize();
-	}
-	*/
 }
 
 //*****************************************************************************************
@@ -418,7 +374,6 @@ void CAnimFlash::Advance(void)
 	{
 		CAnim::Finalize();
 		m_frameCounter = m_nFrames;
-//		m_pStimulus->m_enabled = false;
 	}
 }
 
@@ -458,7 +413,6 @@ void CAnimFlicker::Advance(void)
 {
 	if (--m_frameCounter == 0)
 	{
-//		CAnim::Finalize();
 		if (m_pStimulus->m_supressed)
 		{
 			m_frameCounter = m_nOnFrames;
@@ -468,7 +422,6 @@ void CAnimFlicker::Advance(void)
 			m_frameCounter = m_nOffFrames;
 		}
 		m_pStimulus->m_supressed = !m_pStimulus->m_supressed;
-//		m_pStimulus->m_enabled = false;
 	}
 }
 
@@ -590,17 +543,7 @@ void CAnimIntegerRange::Advance(void)
 	m_currentValue += m_increment;
 	bool inRange = m_increment > 0 ?
 		m_currentValue <= m_endValue : m_currentValue >= m_endValue;
-	if (inRange)
-	{
-		/*
-		if (!m_pStimulus->SetAnimParam(m_mode, m_currentValue))
-		{
-			Deassign();
-			return;
-		}
-		*/
-	}
-	else
+	if (!inRange)
 	{
 		m_currentValue = m_startValue;
 		CAnim::Finalize();

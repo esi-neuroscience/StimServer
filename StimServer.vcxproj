@@ -227,6 +227,7 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="NumericBinaryFile.h" />
     <ClInclude Include="OutputWnd.h" />
+    <ClInclude Include="PDplacement.h" />
     <ClInclude Include="PerfStat.h" />
     <ClInclude Include="PipeProcedure.h" />
     <ClInclude Include="PropertiesWnd.h" />

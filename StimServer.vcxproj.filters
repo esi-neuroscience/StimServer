@@ -171,6 +171,9 @@
     <ClInclude Include="D2DBitmapFile.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="PDplacement.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StimServer.cpp">

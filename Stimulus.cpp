@@ -21,6 +21,7 @@
 #include "NumericBinaryFile.h"
 #include "PipeProcedure.h"
 #include "Anim.h"
+#include "PDplacement.h"
 
 using namespace DirectX;
 using namespace D2D1;
@@ -936,6 +937,7 @@ void CPhotoDiode::SetPosition(BYTE position)
 {
 	float y = position & 1 ? g_ScreenSize.height/2.f-15.f : g_ScreenSize.height/-2.f;
 	m_rect = D2D1::RectF(g_ScreenSize.width/-2.f, y, g_ScreenSize.width/-2.f+15.f, y+15.f);
+	CPDplacement::ReadRegistry(&m_rect);
 }
 
 void CPhotoDiode::Draw(void)

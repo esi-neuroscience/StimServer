@@ -14,7 +14,6 @@ public:
 	virtual void Advance(void) = 0;
 	CStimulus* m_pStimulus;
 	static BYTE m_defaultFinalActionMask;
-//	BYTE m_finalActionMask;
 	union
 	{
 		BYTE mask;
@@ -176,6 +175,5 @@ private:
 	UINT32 m_endValue;
 	UINT32 m_currentValue;
 	INT16  m_increment;
-//	BYTE  m_mode;
 };
 

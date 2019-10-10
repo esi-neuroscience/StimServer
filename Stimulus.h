@@ -223,7 +223,7 @@ public:
 	static void Cleanup(void);
 //	CPhotoDiode(D2D1_RECT_F PDrect);
 //	virtual ~CPhotoDiode(void);
-	static void SetPosition(BYTE potition);
+	static void SetPosition(BYTE position);
 private:
 	static D2D1_RECT_F m_rect;
 	static ID2D1SolidColorBrush* m_pBlackBrush;

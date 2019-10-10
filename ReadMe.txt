@@ -205,6 +205,7 @@ redistributing Visual C++ applications in MSDN documentation.
 1.3.1.4  MSt 11-Feb-2019 Wait for threads to become ready before setting done event
 1.3.1.5	 MSt 20-Feb-2019 Straight Line Segment Motion Animation is independent of frame rate
 1.3.1.6	 MSt 13-Jun-2019 Bugfix: "LinearMotion doesn't reach final position"
+1.4.0.0  MSt 10-Oct-2019 honors photo diode position from registry
 
 
 
