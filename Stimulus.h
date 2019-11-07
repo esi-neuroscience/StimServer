@@ -579,3 +579,40 @@ private:
 	*/
 };
 
+class CWedge :
+	public CD2DStimulus
+{
+public:
+	CWedge(void);
+	//	~CPetal(void);
+	void makeCopy(void);
+	void getCopy(void);
+	void Draw(void);
+	void Command(unsigned char message[], DWORD messageLength);
+private:
+	void Construct(void);
+	void Reconstruct(void);
+	CRITICAL_SECTION m_CriticalSection;
+	//	void GetPos(float pos[2]);
+	//	ID2D1SolidColorBrush* m_pBrush;
+	//	ID2D1SolidColorBrush* m_pOutlineBrush;
+	ID2D1PathGeometry1* m_pPathGeometry;
+	/*
+	struct
+	{
+		D2D1_COLOR_F color;
+		D2D1_COLOR_F outlineColor;
+		float strokeWidth;
+		BYTE drawMode;
+	} m_deferableParams, m_deferableParamsCopy;
+	*/
+
+	// The following parameters change the shape of the wedge.
+	// If they are modified, the wedge has to be reconstructed.
+	struct WEDGE_PARAMS
+	{
+		float gamma;
+	} m_wedgeParams, m_wedgeParamsCopy;
+	bool m_reconstructFlag;
+};
+

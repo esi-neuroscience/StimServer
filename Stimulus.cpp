@@ -3091,3 +3091,159 @@ bool CStimulusEllipse::SetAnimParam(BYTE mode, float value)
 		return false;
 }
 */
+
+CWedge::CWedge(void)
+/*
+: m_r(10.0f)
+, m_R(50.0f)
+, m_d(100.0f)
+, m_q(0.3f)
+, m_drawMode(1)
+*/
+{
+	m_typeName = _T("wedge");
+	m_wedgeParams.gamma = 9.0f;
+	/*
+	m_petalParams.m_r = 25.0f;
+	m_petalParams.m_R = 100.0f;
+	m_petalParams.m_d = 250.0f;
+	m_petalParams.m_q = 0.3819660113f;	// (golden ratio)
+	m_reconstructFlag = false;
+	*/
+
+	InitializeCriticalSection(&m_CriticalSection);
+	EnterCriticalSection(&m_CriticalSection);
+	Construct();
+	LeaveCriticalSection(&m_CriticalSection);
+}
+/*
+CPetal::~CPetal(void)
+{
+	m_pPathGeometry->Release();
+	m_pBrush->Release();
+}
+*/
+void CWedge::Construct(void)
+{
+	HRESULT hr;
+	hr = theApp.m_d2dFactory->CreatePathGeometry(&m_pPathGeometry);
+	ASSERT(hr == S_OK);
+	ID2D1GeometrySink *pSink = NULL;
+	hr = m_pPathGeometry->Open(&pSink);
+	ASSERT(hr == S_OK);
+	D2D1_POINT_2F startPoint = { 0.0f, 0.0f };
+	float h = sqrtf(g_ScreenSize.width*g_ScreenSize.width + g_ScreenSize.height*g_ScreenSize.height);
+	float x = h * tanf((m_wedgeParams.gamma / 2.0) * (M_PI/180.0));
+	D2D1_POINT_2F points[2] = { {h, -x}, {h,x} };
+/*
+	points[0].x =  h;
+	points[0].y = -x;
+	points[1].x =  h;
+	points[1].y =  x;
+*/
+	pSink->BeginFigure(startPoint, D2D1_FIGURE_BEGIN_FILLED);
+	pSink->AddLines(points, 2);
+	pSink->EndFigure(D2D1_FIGURE_END_CLOSED);
+	hr = pSink->Close();
+	ASSERT(hr == S_OK);
+}
+
+void CWedge::Reconstruct(void)
+{
+	EnterCriticalSection(&m_CriticalSection);
+	m_pPathGeometry->Release();
+	Construct();
+	LeaveCriticalSection(&m_CriticalSection);
+}
+
+
+void CWedge::Draw(void)
+{
+	CD2DStimulus::Draw();
+	//	if (!theApp.m_drawMode) theApp.BeginDraw();
+	theApp.m_pContext->SetTransform(m_transform);
+	EnterCriticalSection(&m_CriticalSection);
+	if (m_deferableParams.drawMode & 1)
+		theApp.m_pContext->FillGeometry(m_pPathGeometry, m_pBrush);
+	if (m_deferableParams.drawMode & 2)
+		theApp.m_pContext->DrawGeometry(m_pPathGeometry, m_pOutlineBrush,
+			m_deferableParams.strokeWidth);
+	LeaveCriticalSection(&m_CriticalSection);
+	theApp.m_pContext->SetTransform(theApp.m_contextTransform);
+}
+
+void CWedge::Command(unsigned char message[], DWORD messageLength)
+{
+	//	TRACE("CPetal::Command\n");
+	CString errString;
+	WEDGE_PARAMS* pDP = theApp.m_deferredMode ?
+		&m_wedgeParamsCopy : &m_wedgeParams;
+	bool isShapeCommand = ShapeCommand(message, messageLength);
+	if (!isShapeCommand) switch (message[0])
+	{
+	case 1:		// set parameter
+		switch (message[1])
+		{
+		case 1:	// phi
+		{
+			if (!theApp.CheckCommandLength(messageLength, 6, _T("Set Wedge Angle")))
+			{
+				m_errorCode = 2;
+				theApp.m_errorMask |= 2;
+				return;
+			}
+			float phi = *(float*)&message[2];
+			if (phi <= 0.0f)
+			{
+				errString.Format(_T("Non positive angle (%f) is invalid for wedge -- ignored."),
+					phi);
+				COutputList::AddString(errString);
+			}
+			else if (phi > 90.0f)
+			{
+				errString.Format(_T("Wedge angle must be less than 90 (requested was %f) -- ignored."),
+					phi);
+				COutputList::AddString(errString);
+				//					m_r = maxRadius;
+				//					Reconstruct();
+			}
+			else
+			{
+//				m_wedgeParams.gamma = phi;
+				pDP->gamma = phi;
+				if (!theApp.m_deferredMode) Reconstruct();
+				else m_reconstructFlag = true;
+			}
+		}
+		break;
+		default:
+			m_errorCode = 3;
+			theApp.m_errorMask |= 2;
+			errString.Format(_T("Invalid wedge command. Trace: %u %u %u %u %u %u."),
+				message[0], message[1], message[2], message[3], message[4], message[5]);
+			COutputList::AddString(errString);
+			return;
+		}
+		break;
+	default:
+		InvalidCommand(message[0]);
+		return;
+	}
+}
+
+void CWedge::makeCopy(void)
+{
+	CD2DStimulus::makeCopy();
+	m_wedgeParamsCopy = m_wedgeParams;
+}
+
+void CWedge::getCopy(void)
+{
+	CD2DStimulus::getCopy();
+	
+	if (m_reconstructFlag)
+	{
+		Reconstruct();
+		m_reconstructFlag = false;
+	}
+}

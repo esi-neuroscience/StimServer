@@ -539,14 +539,22 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 			return message[0] == 26 ? AddStimulusObject(pStim)
 				: ReplaceStimulusObject(pStim, (WORD*)&message[1]);
 		}
-				 break;
+		break;
 		case 28:	// Ellipse
 		case 29:
-			{
-				CEllipse* pStim = new CEllipse();
-				return message[0] == 28 ? AddStimulusObject(pStim)
-					: ReplaceStimulusObject(pStim, (WORD*)&message[1]);
-			}
+		{
+			CEllipse* pStim = new CEllipse();
+			return message[0] == 28 ? AddStimulusObject(pStim)
+				: ReplaceStimulusObject(pStim, (WORD*)&message[1]);
+		}
+		break;
+		case 30:	// Wedge
+		case 31:
+		{
+			CWedge* pStim = new CWedge();
+			return message[0] == 30 ? AddStimulusObject(pStim)
+				: ReplaceStimulusObject(pStim, (WORD*)&message[1]);
+		}
 		break;
 		case 130:
 			{
