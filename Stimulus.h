@@ -71,6 +71,7 @@ protected:
 	bool ShapeCommand(unsigned char message[], DWORD messageLength);
 	bool ShapeSetSize(unsigned char message[], DWORD messageLength, float* w2, float* h2);
 	void GetPos(float pos[2]);
+	void SetOrientation(float angle);
 	D2D1_MATRIX_3X2_F m_transform, m_transformCopy;
 	ID2D1SolidColorBrush* m_pBrush;
 	ID2D1SolidColorBrush* m_pOutlineBrush;
@@ -92,6 +93,7 @@ protected:
 		};
 	} m_updateFlags;
 };
+
 
 
 class CLoadedStimulus :
@@ -396,17 +398,8 @@ public:
 	void Draw(void);
 	void Command(unsigned char message[], DWORD messageLength);
 //	bool SetAnimParam(BYTE mode, float value);
-	/*
-	struct
-	{
-		D2D1_COLOR_F color;
-		D2D1_RECT_F rect;
-	} m_deferableParams, m_deferableParamsCopy;
-	*/
 private:
 //	void Moveto(bool deferred, float x, float y);
-//	void GetPos(float pos[2]);
-//	ID2D1SolidColorBrush* m_pBrush;
 	/*
 	union {
 		unsigned char all;
@@ -500,45 +493,6 @@ private:
 	HANDLE m_hEndEvent;
 };
 
-class CPetal :
-	public CD2DStimulus
-{
-public:
-	CPetal(void);
-//	~CPetal(void);
-	void makeCopy(void);
-	void getCopy(void);
-	void Draw(void);
-	void Command(unsigned char message[], DWORD messageLength);
-private:
-	void Construct(void);
-	void Reconstruct(void);
-	CRITICAL_SECTION m_CriticalSection;
-//	void GetPos(float pos[2]);
-//	ID2D1SolidColorBrush* m_pBrush;
-//	ID2D1SolidColorBrush* m_pOutlineBrush;
-	ID2D1PathGeometry1* m_pPathGeometry;
-	/*
-	struct
-	{
-		D2D1_COLOR_F color;
-		D2D1_COLOR_F outlineColor;
-		float strokeWidth;
-		BYTE drawMode;
-	} m_deferableParams, m_deferableParamsCopy;
-	*/
-
-	// The following parameters change the shape of the petal.
-	// If they are modified, the petal has to be reconstructed.
-	struct PETAL_PARAMS
-	{
-		float m_r;
-		float m_R;
-		float m_d;
-		float m_q;
-	} m_petalParams, m_petalParamsCopy;
-	bool m_reconstructFlag;
-};
 
 class CEllipse :
 	public CD2DStimulus
@@ -551,68 +505,8 @@ public:
 	void Draw(void);
 	void Command(unsigned char message[], DWORD messageLength);
 	//	bool SetAnimParam(BYTE mode, float value);
-	/*
-	struct
-	{
-		D2D1_COLOR_F color;
-		D2D1_COLOR_F outlineColor;
-		float strokeWidth;
-		BYTE drawMode;
-		D2D1_ELLIPSE ellipse;
-	} m_deferableParams, m_deferableParamsCopy;
-	*/
 private:
 	D2D1_ELLIPSE m_ellipse, m_ellipseCopy;
-	//	void Moveto(bool deferred, float x, float y);
-	//	void GetPos(float pos[2]);
-//	ID2D1SolidColorBrush* m_pBrush;
-//	ID2D1SolidColorBrush* m_pOutlineBrush;
-	/*
-	union {
-		unsigned char all;
-		struct {
-			unsigned char color : 1;
-			unsigned char outlineColor : 1;
-			unsigned char unused : 6;
-		};
-	} m_updateFlags;
-	*/
 };
 
-class CWedge :
-	public CD2DStimulus
-{
-public:
-	CWedge(void);
-	//	~CPetal(void);
-	void makeCopy(void);
-	void getCopy(void);
-	void Draw(void);
-	void Command(unsigned char message[], DWORD messageLength);
-private:
-	void Construct(void);
-	void Reconstruct(void);
-	CRITICAL_SECTION m_CriticalSection;
-	//	void GetPos(float pos[2]);
-	//	ID2D1SolidColorBrush* m_pBrush;
-	//	ID2D1SolidColorBrush* m_pOutlineBrush;
-	ID2D1PathGeometry1* m_pPathGeometry;
-	/*
-	struct
-	{
-		D2D1_COLOR_F color;
-		D2D1_COLOR_F outlineColor;
-		float strokeWidth;
-		BYTE drawMode;
-	} m_deferableParams, m_deferableParamsCopy;
-	*/
-
-	// The following parameters change the shape of the wedge.
-	// If they are modified, the wedge has to be reconstructed.
-	struct WEDGE_PARAMS
-	{
-		float gamma;
-	} m_wedgeParams, m_wedgeParamsCopy;
-	bool m_reconstructFlag;
-};
 

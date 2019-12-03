@@ -558,7 +558,6 @@ UINT DisplayProcedure( LPVOID pParam )
 		pDoc->Draw();
 //		pOutput->WaitForVBlank();
 
-//		EnterCriticalSection(&g_criticalDeviceSection);
 //		ASSERT(QueryPerformanceCounter(&preCount));
 #ifdef PERFSTAT
 		perfStat.Pre();
@@ -573,7 +572,6 @@ UINT DisplayProcedure( LPVOID pParam )
 #ifdef PERFSTAT
 		perfStat.Post();
 #endif
-//		LeaveCriticalSection(&g_criticalDeviceSection);
 //		pOutput->WaitForVBlank();
 		if (hr == DXGI_ERROR_DEVICE_REMOVED)
 		{
