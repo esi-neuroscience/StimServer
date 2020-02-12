@@ -8,6 +8,7 @@
 #include <wrl\client.h>
 #include <d3dcompiler.inl>
 #include <DirectXMath.h>	// XMFLOAT3
+#include <math.h>
 
 using namespace Microsoft::WRL;
 using namespace DirectX;
@@ -63,7 +64,7 @@ UINT DisplayProcedure( LPVOID pParam )
 
 	// pFactory->IsWindowedStereoEnabled();
 	IDXGIAdapter2 * pAdapter;
-	IDXGIOutput1 * pOutput;			// IDXGIOutput2 with Dxgi1_3.h (Windows 8.1) --> Hardware Overlay Planes
+	//IDXGIOutput1 pOutput;			// IDXGIOutput2 with Dxgi1_3.h (Windows 8.1) --> Hardware Overlay Planes	
 	DXGI_ADAPTER_DESC2 pDesc;
 	DXGI_OUTPUT_DESC outputDesc;
 	MONITORINFO monitorInfo;
@@ -79,9 +80,9 @@ UINT DisplayProcedure( LPVOID pParam )
 		TRACE("%d. Adapter: %S\n", i, CString(pDesc.Description));
 		g_adapterName = _T("Adapter: ") + CString(pDesc.Description);
 		UINT j = 0; 
-		while (pAdapter->EnumOutputs(j++, (IDXGIOutput**) &pOutput) != DXGI_ERROR_NOT_FOUND)
+		while (pAdapter->EnumOutputs(j++, (IDXGIOutput**) &theApp.pOutput) != DXGI_ERROR_NOT_FOUND)
 		{
-			pOutput->GetDesc(&outputDesc);
+			theApp.pOutput->GetDesc(&outputDesc);
 			VERIFY(GetMonitorInfo(outputDesc.Monitor, &monitorInfo));
 			haveSecondary = (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) == 0;
 			if (haveSecondary) {
@@ -96,10 +97,10 @@ UINT DisplayProcedure( LPVOID pParam )
 				DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM;
 				UINT flags         = 0;	// DXGI_ENUM_MODES_INTERLACED;
 
-				pOutput->GetDisplayModeList1( format, flags, &num, 0);
+				theApp.pOutput->GetDisplayModeList1( format, flags, &num, 0);
 						
 				DXGI_MODE_DESC1 * pDescs = new DXGI_MODE_DESC1[num];
-				pOutput->GetDisplayModeList1( format, flags, &num, pDescs);
+				theApp.pOutput->GetDisplayModeList1( format, flags, &num, pDescs);
 				TRACE(_T("Number of Modes: %u\n"), num);
 
 				//+ we choose the mode with the size of the desktop (monitor)
@@ -154,7 +155,7 @@ UINT DisplayProcedure( LPVOID pParam )
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
 		OpenGLRect, NULL, NULL, NULL));
 
-	IDXGISwapChain1 *pSwapChain = NULL;		// IDXGISwapChain2 with DXGI1_3.h
+	//IDXGISwapChain1 *pSwapChain = NULL;		// IDXGISwapChain2 with DXGI1_3.h
 
 	D3D_FEATURE_LEVEL FeatureLevel;
 //	ComPtr<ID3D11DeviceContext> immediateContext;
@@ -291,10 +292,16 @@ UINT DisplayProcedure( LPVOID pParam )
 		&swapChainDesc,
 		&swapChainFullscreenDesc,
 		nullptr,    // allow on all displays	!!
-		&pSwapChain
+		&theApp.pSwapChain
 		);
 	if (hr == DXGI_STATUS_OCCLUDED) hr = S_OK;
 	ASSERT(hr == S_OK);
+
+	hr = theApp.pSwapChain->SetFullscreenState(TRUE, theApp.pOutput);
+	ASSERT(hr == S_OK);
+	hr = theApp.pSwapChain->GetContainingOutput((IDXGIOutput**)&theApp.pOutput);
+	ASSERT(hr == S_OK);
+
 	// 0x887A0004 - DXGI_ERROR_UNSUPPORTED (stereo)
 
 	//	dxgiFactory->Release();
@@ -370,7 +377,7 @@ UINT DisplayProcedure( LPVOID pParam )
 
 	// Direct2D needs the dxgi version of the backbuffer surface pointer.
 	ComPtr<IDXGISurface> dxgiBackBuffer;
-	hr = pSwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer));
+	hr = theApp.pSwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer));
 	ASSERT(hr == S_OK);
 
 	ID2D1Bitmap1 *m_d2dTargetBitmap = NULL;
@@ -400,7 +407,7 @@ UINT DisplayProcedure( LPVOID pParam )
 
     // Create a render target view
     ID3D11Texture2D* pBackBufferPS = NULL;
-    hr = pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), ( LPVOID* )&pBackBufferPS );
+    hr = theApp.pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), ( LPVOID* )&pBackBufferPS );
     if( FAILED( hr ) )
         return hr; 
 
@@ -529,11 +536,13 @@ UINT DisplayProcedure( LPVOID pParam )
 */
 
 	DXGI_PRESENT_PARAMETERS presentPars = {0};
-	hr = pSwapChain->Present1(
+	hr = theApp.pSwapChain->Present1(
 		1,
 		0,
 		&presentPars);
 	ASSERT(hr == S_OK);
+
+
 
 //	pDoc->AddPhotoDiode(D2D1::RectF(g_ScreenSize.width/-2.f, g_ScreenSize.height/-2.f,
 //		g_ScreenSize.width/-2.f+15.f, g_ScreenSize.height/-2.f+15.f));
@@ -563,7 +572,10 @@ UINT DisplayProcedure( LPVOID pParam )
 #ifdef PERFSTAT
 		perfStat.Pre();
 #endif
-		hr = pSwapChain->Present1(
+
+	
+
+		hr = theApp.pSwapChain->Present1(
 			1,
 			0,
 //			DXGI_PRESENT_DO_NOT_SEQUENCE,
@@ -575,6 +587,9 @@ UINT DisplayProcedure( LPVOID pParam )
 #endif
 //		LeaveCriticalSection(&g_criticalDeviceSection);
 //		pOutput->WaitForVBlank();
+
+
+
 		if (hr == DXGI_ERROR_DEVICE_REMOVED)
 		{
 			hr = theApp.m_pD3Ddevice->GetDeviceRemovedReason();
@@ -613,9 +628,9 @@ UINT DisplayProcedure( LPVOID pParam )
 		*/
 	} while (CStimServerDoc::m_valid);
 //	} while (docValid);
-	pSwapChain->Release();
+	theApp.pSwapChain->Release();
 	theApp.m_pContext->Release();
-	pOutput->Release();
+	theApp.pOutput->Release();
 	TRACE("End of Display Thread\n");
 	if (!SetEvent(pDoc->m_hCloseDocument)) {
 		DWORD error = GetLastError();

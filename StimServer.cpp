@@ -31,6 +31,8 @@ D2D1::ColorF CStimServerApp::m_defaultOutlineColor = D2D1::ColorF(0.0f, 0.0f, 0.
 D2D1_MATRIX_3X2_F CStimServerApp::m_contextTransform;
 HANDLE CStimServerApp::m_hDisplayThreadReady;
 HANDLE CStimServerApp::m_hPipeThreadReady;
+IDXGIOutput1* CStimServerApp::pOutput = NULL;
+IDXGISwapChain1* CStimServerApp::pSwapChain = NULL;
 
 CStimServerDoc* g_pDoc;
 

@@ -57,6 +57,8 @@ public:
 	afx_msg void OnHelpAbouthardware();
 	CString m_featureLevelString;
 //	static void setVertexShaderCol(void);
+	static IDXGIOutput1* pOutput;
+	static IDXGISwapChain1* pSwapChain;
 	static ID3D11VertexShader* m_pVertexShaderPart;
 	static ID3D11VertexShader* m_pVertexShaderShift;
 	static ID3D11RenderTargetView* m_pRenderTargetView;
