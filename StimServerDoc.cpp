@@ -318,34 +318,34 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 				theApp.m_defaultOutlineColor = D2D1::ColorF(
 					message[2]/255.f, message[3]/255.f, message[4]/255.f, message[5]/255.f);
 				break;
-			case 10: // [00 1 10 gamma] set gamma correction exponent
+			//case 10: // [00 1 10 gamma] set gamma correction exponent
 
-				// If calling SetGammaControl on an output that is enumerated before a 
-				// full-screen mode switch, the call is not directed toward the output 
-				// that DXGI is using currently. To avoid this, call 
-				// IDXGISwapChain::GetContainingOutput to get the current output.
-				HRESULT hr = theApp.pSwapChain->GetContainingOutput((IDXGIOutput**)&theApp.pOutput);
-				ASSERT(hr == S_OK);
+			//	// If calling SetGammaControl on an output that is enumerated before a 
+			//	// full-screen mode switch, the call is not directed toward the output 
+			//	// that DXGI is using currently. To avoid this, call 
+			//	// IDXGISwapChain::GetContainingOutput to get the current output.
+			//	HRESULT hr = theApp.pSwapChain->GetContainingOutput((IDXGIOutput**)&theApp.pOutput);
+			//	ASSERT(hr == S_OK);
 
-				TRACE("Set gamma to 1/%f\n", *(float*)&message[2]);
+			//	TRACE("Set gamma to 1/%f\n", *(float*)&message[2]);
 
-				DXGI_GAMMA_CONTROL_CAPABILITIES GammaCaps = { 0 };
-				theApp.pOutput->GetGammaControlCapabilities(&GammaCaps);
+			//	DXGI_GAMMA_CONTROL_CAPABILITIES GammaCaps = { 0 };
+			//	theApp.pOutput->GetGammaControlCapabilities(&GammaCaps);
 
-				DXGI_GAMMA_CONTROL GammaControl = { 0 };
-				GammaControl.Scale.Red = 1.0f;
-				GammaControl.Scale.Blue = 1.0f;
-				GammaControl.Scale.Green = 1.0f;
+			//	DXGI_GAMMA_CONTROL GammaControl = { 0 };
+			//	GammaControl.Scale.Red = 1.0f;
+			//	GammaControl.Scale.Blue = 1.0f;
+			//	GammaControl.Scale.Green = 1.0f;
 
-				for (int ik = 0; ik < GammaCaps.NumGammaControlPoints; ik++) {
-					float value = pow(GammaCaps.ControlPointPositions[ik], 1.0f / *(float*)&message[2]);
-					GammaControl.GammaCurve[ik].Red = value;
-					GammaControl.GammaCurve[ik].Green = value;
-					GammaControl.GammaCurve[ik].Blue = value;
-				};				
+			//	for (int ik = 0; ik < GammaCaps.NumGammaControlPoints; ik++) {
+			//		float value = pow(GammaCaps.ControlPointPositions[ik], 1.0f / *(float*)&message[2]);
+			//		GammaControl.GammaCurve[ik].Red = value;
+			//		GammaControl.GammaCurve[ik].Green = value;
+			//		GammaControl.GammaCurve[ik].Blue = value;
+			//	};				
 
-				hr = theApp.pOutput->SetGammaControl(&GammaControl);
-				ASSERT(hr == S_OK);
+			//	hr = theApp.pOutput->SetGammaControl(&GammaControl);
+			//	ASSERT(hr == S_OK);
 			}
 			break;
 			/*

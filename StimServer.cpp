@@ -10,10 +10,11 @@
 
 #include "StimServerDoc.h"
 #include "StimServerView.h"
-#include "DisplayProcedure.h"
+
 #include "PipeProcedure.h"
 #include "HardwareDlg.h"
 #include <d3dcompiler.inl>
+#include "DisplayProcedure.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -31,10 +32,8 @@ D2D1::ColorF CStimServerApp::m_defaultOutlineColor = D2D1::ColorF(0.0f, 0.0f, 0.
 D2D1_MATRIX_3X2_F CStimServerApp::m_contextTransform;
 HANDLE CStimServerApp::m_hDisplayThreadReady;
 HANDLE CStimServerApp::m_hPipeThreadReady;
-IDXGIOutput1* CStimServerApp::pOutput = NULL;
-IDXGISwapChain1* CStimServerApp::pSwapChain = NULL;
-
 CStimServerDoc* g_pDoc;
+
 
 CRITICAL_SECTION g_criticalMapSection;
 CRITICAL_SECTION g_criticalDrawSection;
@@ -168,10 +167,12 @@ BOOL CStimServerApp::InitInstance()
 //	m_hArrayMutex = CreateMutex(NULL, FALSE, NULL);
 //	ASSERT(m_hArrayMutex);
 //	m_hDrawMutex = CreateMutex(NULL, FALSE, NULL);
-//	ASSERT(m_hDrawMutex);
+//	ASSERT(m_hDrawMutex);	
+
 	VERIFY(m_hDisplayThreadReady = CreateEvent(NULL, false, false, NULL));
 	VERIFY(m_hPipeThreadReady = CreateEvent(NULL, false, false, NULL));
-	m_pDisplayThread = AfxBeginThread(DisplayProcedure, m_pMainWnd);
+	VERIFY(CDisplay::InitializeWindow() == 0);
+	m_pDisplayThread = AfxBeginThread(CDisplay::PresentLoop, m_pMainWnd);
 	m_pPipeThread = AfxBeginThread(PipeProcedure, NULL);
 
 	// The one and only window has been initialized, so show and update it
