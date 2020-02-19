@@ -162,15 +162,14 @@ BOOL CStimServerApp::InitInstance()
 
 	InitializeCriticalSection(&g_criticalMapSection);
 	InitializeCriticalSection(&g_criticalDrawSection);
-<<<<<<< StimServer.cpp
+
 //	InitializeCriticalSection(&g_criticalDeviceSection);
 //	m_hArrayMutex = CreateMutex(NULL, FALSE, NULL);
 //	ASSERT(m_hArrayMutex);
 //	m_hDrawMutex = CreateMutex(NULL, FALSE, NULL);
 //	ASSERT(m_hDrawMutex);	
 
-=======
->>>>>>> StimServer.cpp
+
 	VERIFY(m_hDisplayThreadReady = CreateEvent(NULL, false, false, NULL));
 	VERIFY(m_hPipeThreadReady = CreateEvent(NULL, false, false, NULL));
 	VERIFY(CDisplay::InitializeWindow() == 0);

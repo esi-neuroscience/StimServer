@@ -16,7 +16,7 @@ class CDisplay
 public:	
 	static UINT InitializeWindow();
 	static UINT PresentLoop( LPVOID pParam );
-	static UINT SetGammaExponent(float exponent);
+	static UINT InvertGammaExponent(float exponent);
 
 private:	
 	static CWnd m_DirectXWnd;
