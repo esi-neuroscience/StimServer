@@ -297,6 +297,11 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 			case 5: // [00 1 5 r g b a] set default draw color
 				theApp.m_defaultDrawColor = D2D1::ColorF(
 					message[2]/255.f, message[3]/255.f, message[4]/255.f, message[5]/255.f);
+				TRACE("DDC: %f %f %f %f\n",
+					theApp.m_defaultDrawColor.r,
+					theApp.m_defaultDrawColor.g,
+					theApp.m_defaultDrawColor.b,
+					theApp.m_defaultDrawColor.a);
 				break;
 			case 6:	// [00 1 6] query performance frequency
 				LARGE_INTEGER performanceFrequency;

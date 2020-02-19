@@ -58,7 +58,6 @@ HRESULT CDeviceConstBuffer::Update(float animationPar[], unsigned char parSize)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedConstBuffer = {0};
 
-//	EnterCriticalSection(&g_criticalDeviceSection);
 	HRESULT hr = theApp.m_pImmediateContext->Map(m_pDeviceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedConstBuffer);
 	ASSERT(hr == S_OK);
 
@@ -66,7 +65,6 @@ HRESULT CDeviceConstBuffer::Update(float animationPar[], unsigned char parSize)
 	for (unsigned char i=0; i<parSize; i++) *pData++ = animationPar[i];
 
 	theApp.m_pImmediateContext->Unmap(m_pDeviceBuffer, 0);
-//	LeaveCriticalSection(&g_criticalDeviceSection);
 	return hr;
 }
 

@@ -5,7 +5,8 @@
 
 #pragma once
 #include "afxcoll.h"
-#include "Stimulus.h"
+//#include "Stimulus.h"
+#include "GeometryStimuli.h"
 #include "StimulusPixel.h"
 #include "Anim.h"
 #include "OutputWnd.h"

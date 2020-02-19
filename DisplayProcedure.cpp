@@ -584,6 +584,12 @@ UINT CDisplay::PresentLoop(LPVOID pParam)
 	{
 		HRESULT hr;
 		pDoc->Draw();
+<<<<<<< DisplayProcedure.cpp
+=======
+//		pOutput->WaitForVBlank();
+
+//		ASSERT(QueryPerformanceCounter(&preCount));
+>>>>>>> DisplayProcedure.cpp
 #ifdef PERFSTAT
 		perfStat.Pre();
 #endif	
@@ -598,11 +604,15 @@ UINT CDisplay::PresentLoop(LPVOID pParam)
 #ifdef PERFSTAT
 		perfStat.Post();
 #endif
+<<<<<<< DisplayProcedure.cpp
 		//		LeaveCriticalSection(&g_criticalDeviceSection);
 		//		pOutput->WaitForVBlank();
 
 
 
+=======
+//		pOutput->WaitForVBlank();
+>>>>>>> DisplayProcedure.cpp
 		if (hr == DXGI_ERROR_DEVICE_REMOVED)
 		{
 			hr = theApp.m_pD3Ddevice->GetDeviceRemovedReason();

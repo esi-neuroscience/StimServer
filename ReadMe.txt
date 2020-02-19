@@ -207,6 +207,7 @@ redistributing Visual C++ applications in MSDN documentation.
 1.3.1.6	 MSt 13-Jun-2019 Bugfix: "LinearMotion doesn't reach final position"
 1.4.0.0  MSt 10-Oct-2019 honors photo diode position from registry
 1.4.1.0	 MSt  6-Nov-2019 new stimulus: "wedge"
+1.4.1.1  MSt 19-Nov-2019 linear range animation for wedge orientation
 
 
 

@@ -222,6 +222,7 @@
     <ClInclude Include="DeviceBuffer.h" />
     <ClInclude Include="DisplayProcedure.h" />
     <ClInclude Include="FileView.h" />
+    <ClInclude Include="GeometryStimuli.h" />
     <ClInclude Include="HardwareDlg.h" />
     <ClInclude Include="LoadD2DBitmap.h" />
     <ClInclude Include="MainFrm.h" />
@@ -250,6 +251,7 @@
     <ClCompile Include="DeviceBuffer.cpp" />
     <ClCompile Include="DisplayProcedure.cpp" />
     <ClCompile Include="FileView.cpp" />
+    <ClCompile Include="GeometryStimuli.cpp" />
     <ClCompile Include="HardwareDlg.cpp" />
     <ClCompile Include="LoadD2DBitmap.cpp" />
     <ClCompile Include="LogMediaType.cpp" />
