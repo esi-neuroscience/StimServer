@@ -43,7 +43,7 @@ DXGI_PRESENT_PARAMETERS CDisplay::presentPars = { 0 };
 IDXGIOutput1* CDisplay::pOutput = nullptr;
 IDXGISwapChain1* CDisplay::pSwapChain = nullptr;
 DXGI_GAMMA_CONTROL_CAPABILITIES CDisplay::GammaCaps = { 0 };
-CWnd CDisplay::m_OpenGLWnd;
+CWnd CDisplay::m_DirectXWnd;
 
 UINT CDisplay::InitializeWindow()
 {
@@ -158,7 +158,7 @@ UINT CDisplay::InitializeWindow()
 	CString OpenGLClass = AfxRegisterWndClass(CS_OWNDC, NULL, NULL, NULL);
 	RECT OpenGLRect = outputDesc.DesktopCoordinates;
 	//CWnd m_OpenGLWnd;
-	VERIFY(m_OpenGLWnd.CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, OpenGLClass, _T("Stimulus Display"),
+	VERIFY(m_DirectXWnd.CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, OpenGLClass, _T("Stimulus Display"),
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
 		OpenGLRect, NULL, NULL, NULL));
 
@@ -295,7 +295,7 @@ UINT CDisplay::InitializeWindow()
 //	hr = dxgiFactory->CreateSwapChainForHwnd(
 	hr = pFactory->CreateSwapChainForHwnd(
 		theApp.m_pD3Ddevice,
-		m_OpenGLWnd.m_hWnd,
+		m_DirectXWnd.m_hWnd,
 		&swapChainDesc,
 		&swapChainFullscreenDesc,
 		nullptr,    // allow on all displays	!!
@@ -308,9 +308,9 @@ UINT CDisplay::InitializeWindow()
 	ASSERT(hr == S_OK);
 	hr = pSwapChain->GetContainingOutput((IDXGIOutput**)&pOutput);
 	ASSERT(hr == S_OK);
-		
+
 	pOutput->GetGammaControlCapabilities(&GammaCaps);
-	
+
 	// 0x887A0004 - DXGI_ERROR_UNSUPPORTED (stereo)
 
 	//	dxgiFactory->Release();
@@ -549,7 +549,7 @@ UINT CDisplay::InitializeWindow()
 		prevFrameStats = frameStats;
 	*/
 
-	
+
 	hr = pSwapChain->Present1(
 		1,
 		0,
@@ -578,7 +578,7 @@ UINT CDisplay::InitializeWindow()
 	return 0;
 }
 
-UINT CDisplay::PresentLoop( LPVOID pParam )
+UINT CDisplay::PresentLoop(LPVOID pParam)
 {
 	do
 	{
@@ -652,16 +652,36 @@ UINT CDisplay::PresentLoop( LPVOID pParam )
 	return 0;
 }
 
+UINT CDisplay::InvertGammaExponent(float exponent) {
+	//If calling SetGammaControl on an output that is enumerated before a 
+	//full-screen mode switch, the call is not directed toward the output 
+	//that DXGI is using currently. To avoid this, call 
+	//IDXGISwapChain::GetContainingOutput to get the current output.
+	HRESULT hr;
 
-//UINT DisplayProcedure(LPVOID pParam) {	
-//
-//	HRESULT hr;
-//	
-//	hr = CDisplay::InitializeWindow();
-//	hr = theApp.theDisplay.InitializeWindow();
-//	
-//	if (FAILED(hr))
-//		return hr;
-//	
-//	return theApp.theDisplay.PresentLoop();
-//}
+	hr = pSwapChain->GetContainingOutput((IDXGIOutput**)&pOutput);
+	ASSERT(hr == S_OK);
+
+	TRACE("Set gamma to 1/%f\n", exponent);
+
+	DXGI_GAMMA_CONTROL_CAPABILITIES GammaCaps = { 0 };
+	pOutput->GetGammaControlCapabilities(&GammaCaps);
+
+	DXGI_GAMMA_CONTROL GammaControl = { 0 };
+	GammaControl.Scale.Red = 1.0f;
+	GammaControl.Scale.Blue = 1.0f;
+	GammaControl.Scale.Green = 1.0f;
+
+	for (short unsigned ik = 0; ik < GammaCaps.NumGammaControlPoints; ik++) {
+		float value = pow(GammaCaps.ControlPointPositions[ik], 1.0f / exponent);
+		GammaControl.GammaCurve[ik].Red = value;
+		GammaControl.GammaCurve[ik].Green = value;
+		GammaControl.GammaCurve[ik].Blue = value;
+	};				
+
+	hr = pOutput->SetGammaControl(&GammaControl);
+	ASSERT(hr == S_OK);
+
+	return hr;
+}
+
