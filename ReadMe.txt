@@ -208,6 +208,7 @@ redistributing Visual C++ applications in MSDN documentation.
 1.4.0.0  MSt 10-Oct-2019 honors photo diode position from registry
 1.4.1.0	 MSt  6-Nov-2019 new stimulus: "wedge"
 1.4.1.1  MSt 19-Nov-2019 linear range animation for wedge orientation
+1.4.2.0  JTS 20-Feb-2020 Support for gamma correction
 
 
 
