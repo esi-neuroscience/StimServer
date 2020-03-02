@@ -573,13 +573,14 @@ UINT CDisplay::InitializeWindow()
 #ifdef PERFSTAT
 	CPerfStat perfStat(1000);
 #endif
-	VERIFY(SetEvent(CStimServerApp::m_hDisplayThreadReady));
+	
 	//	bool docValid = true;
 	return 0;
 }
 
 UINT CDisplay::PresentLoop(LPVOID pParam)
 {
+	VERIFY(SetEvent(CStimServerApp::m_hDisplayThreadReady));
 	do
 	{
 		HRESULT hr;
