@@ -11,7 +11,7 @@
 
 #include "StimServerDoc.h"
 #include "PipeProcedure.h"
-
+#include "DisplayProcedure.h"
 #include <propkey.h>
 
 //#include <atlbase.h>
@@ -323,6 +323,8 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 				theApp.m_defaultOutlineColor = D2D1::ColorF(
 					message[2]/255.f, message[3]/255.f, message[4]/255.f, message[5]/255.f);
 				break;
+			case 10: // [00 1 10 gamma] set gamma correction exponent
+				CDisplay::InvertGammaExponent(*(float*)&message[2]);
 			}
 			break;
 			/*

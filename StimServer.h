@@ -11,7 +11,7 @@
 
 #include <D2d1_1.h>
 #include <d3d11_1.h>
-
+//#include "DisplayProcedure.h"
 // #define WM_SEQUENCE_ERR (WM_APP + 1)
 
 
@@ -65,7 +65,6 @@ public:
 	static D2D1::ColorF m_defaultDrawColor;
 	static D2D1::ColorF m_defaultOutlineColor;
 	static D2D1_MATRIX_3X2_F m_contextTransform;
-
 	static HRESULT createVertexShaderCol(void);
 	static HRESULT createVertexShaderPart(void);
 	static HRESULT createVertexShaderShift(void);
