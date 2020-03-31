@@ -209,6 +209,7 @@ redistributing Visual C++ applications in MSDN documentation.
 1.4.1.0	 MSt  6-Nov-2019 new stimulus: "wedge"
 1.4.1.1  MSt 19-Nov-2019 linear range animation for wedge orientation
 1.4.2.0  JTS 20-Feb-2020 Support for gamma correction
+1.4.2.1  JTS 31-Mar-2020 changed size of non-fullscreen output window to 800x600 pixel
 
 
 

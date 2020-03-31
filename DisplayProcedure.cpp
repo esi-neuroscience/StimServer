@@ -155,12 +155,16 @@ UINT CDisplay::InitializeWindow()
 	TRACE("Dedicated Video: %u, Dedicated Sytem: %u, Shared System: %u\n", pDesc.DedicatedVideoMemory, pDesc.DedicatedSystemMemory, pDesc.SharedSystemMemory);
 	//	TRACE("Graphics: %d, Compute: %d\n", pDesc.GraphicsPreemptionGranularity, pDesc.ComputePreemptionGranularity);
 
-	CString OpenGLClass = AfxRegisterWndClass(CS_OWNDC, NULL, NULL, NULL);
-	RECT OpenGLRect = outputDesc.DesktopCoordinates;
-	//CWnd m_OpenGLWnd;
-	VERIFY(m_DirectXWnd.CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, OpenGLClass, _T("Stimulus Display"),
+	CString DirectXClass = AfxRegisterWndClass(CS_OWNDC, NULL, NULL, NULL);	
+	RECT DirectXRect = outputDesc.DesktopCoordinates;
+	DirectXRect.top = DirectXRect.top + 50;
+	DirectXRect.left = DirectXRect.left + 50;
+	DirectXRect.bottom = DirectXRect.top + 600;
+	DirectXRect.right = DirectXRect.left + 800;
+
+	VERIFY(m_DirectXWnd.CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, DirectXClass, _T("Stimulus Display"),
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
-		OpenGLRect, NULL, NULL, NULL));
+		DirectXRect, NULL, NULL, NULL));
 
 	//IDXGISwapChain1* pSwapChain = NULL;		// IDXGISwapChain2 with DXGI1_3.h
 
@@ -250,9 +254,9 @@ UINT CDisplay::InitializeWindow()
 #endif
 	// Allocate a descriptor.
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
-	//	swapChainDesc.Width = 0;                           // use automatic sizing
+	//	swapChainDesc.Width = 0;                           // use automatic sizing: will use the size of the output window, i.e. DirectXRect
 	//	swapChainDesc.Height = 0;
-	swapChainDesc.Width = width;                           // use automatic sizing
+	swapChainDesc.Width = width;                          
 	swapChainDesc.Height = height;
 	swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
 //	swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
