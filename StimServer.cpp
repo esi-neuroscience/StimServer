@@ -59,6 +59,11 @@ CStimServerApp::CStimServerApp()
 	, m_deferredMode(false)
 	, m_errorMask(0)
 	, m_errorCode(0)
+	, m_pD3Ddevice(NULL)
+	, m_pDisplayThread(NULL)
+	, m_pImmediateContext(NULL)
+	, m_pPipeThread(NULL)
+	, m_pVertexShader(NULL)
 {
 	m_bHiColorIcons = TRUE;
 
@@ -172,7 +177,9 @@ BOOL CStimServerApp::InitInstance()
 
 	VERIFY(m_hDisplayThreadReady = CreateEvent(NULL, false, false, NULL));
 	VERIFY(m_hPipeThreadReady = CreateEvent(NULL, false, false, NULL));
-	VERIFY(CDisplay::InitializeWindow() == 0);
+//	VERIFY(CDisplay::InitializeWindow() == S_OK);
+	if (CDisplay::InitializeWindow() != S_OK) return false;
+	CStimServerDoc::m_valid = true;
 	m_pDisplayThread = AfxBeginThread(CDisplay::PresentLoop, m_pMainWnd);
 	m_pPipeThread = AfxBeginThread(PipeProcedure, NULL);
 
@@ -192,16 +199,19 @@ BOOL CStimServerApp::InitInstance()
 int CStimServerApp::ExitInstance()
 {
 	//TODO: handle additional resources you may have added
-	m_pWhiteBrush->Release();
-	m_pVertexShader->Release();
-	m_pRenderTargetView->Release();
-	m_pImmediateContext->Release();
-	m_pD3Ddevice->Release();
-	m_d2dFactory->Release();
-	AfxOleTerm(FALSE);
-//	VERIFY(CloseHandle(m_hDrawMutex));
-//	VERIFY(CloseHandle(m_hArrayMutex));
-	VERIFY(CloseHandle(m_hStimServerDone));
+	if (CStimServerDoc::m_valid)
+	{
+		m_pWhiteBrush->Release();
+		m_pVertexShader->Release();
+		m_pRenderTargetView->Release();
+		m_pImmediateContext->Release();
+		m_pD3Ddevice->Release();
+		m_d2dFactory->Release();
+		AfxOleTerm(FALSE);
+		//	VERIFY(CloseHandle(m_hDrawMutex));
+		//	VERIFY(CloseHandle(m_hArrayMutex));
+		VERIFY(CloseHandle(m_hStimServerDone));
+	}
 	DeleteCriticalSection(&g_criticalMapSection);
 	DeleteCriticalSection(&g_criticalDrawSection);
 	return CWinAppEx::ExitInstance();

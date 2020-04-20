@@ -32,7 +32,7 @@ float g_frameRate;
 D2D1_SIZE_F g_ScreenSize;
 CString g_adapterName;
 
-bool CStimServerDoc::m_valid = true;
+// bool CStimServerDoc::m_valid = false;
 
 CDeviceVertexBuffer CStimulus::VertexBufferUnitQuad;
 CDeviceVertexBuffer CStimulusPixel::m_VertexBuffer;
@@ -45,7 +45,7 @@ IDXGISwapChain1* CDisplay::pSwapChain = nullptr;
 DXGI_GAMMA_CONTROL_CAPABILITIES CDisplay::GammaCaps = { 0 };
 CWnd CDisplay::m_DirectXWnd;
 
-UINT CDisplay::InitializeWindow()
+HRESULT CDisplay::InitializeWindow()
 {
 	POSITION pos = theApp.GetFirstDocTemplatePosition();
 	CDocTemplate* temp = theApp.GetNextDocTemplate(pos);
@@ -148,8 +148,8 @@ UINT CDisplay::InitializeWindow()
 	}
 	pFactory->Release();
 	if (!haveSecondary) {
-
-		throw std::runtime_error("Could not find a secondary display monitor.");
+		AfxMessageBox(_T("Could not find a secondary display monitor."), MB_OK, 0);
+		return E_FAIL;
 	}
 	/* TRACE ADAPTER DESCRIPTION */
 	TRACE("Dedicated Video: %u, Dedicated Sytem: %u, Shared System: %u\n", pDesc.DedicatedVideoMemory, pDesc.DedicatedSystemMemory, pDesc.SharedSystemMemory);
@@ -579,7 +579,7 @@ UINT CDisplay::InitializeWindow()
 #endif
 	
 	//	bool docValid = true;
-	return 0;
+	return S_OK;
 }
 
 UINT CDisplay::PresentLoop(LPVOID pParam)

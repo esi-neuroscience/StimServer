@@ -25,6 +25,8 @@ extern float g_frameRate;
 extern CRITICAL_SECTION g_criticalMapSection;
 extern CRITICAL_SECTION g_criticalDrawSection;
 
+bool CStimServerDoc::m_valid = false;
+
 // CStimServerDoc
 
 IMPLEMENT_DYNCREATE(CStimServerDoc, CDocument)
@@ -43,15 +45,23 @@ CStimServerDoc::CStimServerDoc()
 	, m_deferredUpdate(false)
 {
 	// TODO: add one-time construction code here
-	m_backgroundColor = D2D1::ColorF(.5f, .5f, .5f, 1.f);
+//	m_backgroundColor = D2D1::ColorF(.5f, .5f, .5f, 1.f);
+//	m_PDCSRcopy = { 0,0 };
 	// creste a manual reset event in signaled state
 	m_hDeferredUpdateDone = CreateEvent(NULL, true, true, NULL);
 	ASSERT(m_hDeferredUpdateDone != NULL);
+	// creste a named manual reset event to allow external processes
+	//  to end deferred mode
+	m_hEndDeferredMode = CreateEvent(NULL, true,
+		false,	// initial state unsignaled
+		_T("StimServerEndDeferredMode"));
+	ASSERT(m_hEndDeferredMode != NULL);
 }
 
 CStimServerDoc::~CStimServerDoc()
 {
 	CloseHandle(m_hDeferredUpdateDone);
+	CloseHandle(m_hEndDeferredMode);
 	TRACE("Destroy Document\n");
 }
 
@@ -163,7 +173,12 @@ void CStimServerDoc::Draw()
 	CStimulus* pStimulus;
 
 //	if (m_pPhotoDiode == NULL) return false;
-	if (m_deferredUpdate) {
+	if (theApp.m_deferredMode) if (WaitForSingleObject(m_hEndDeferredMode, 0) == WAIT_OBJECT_0)
+	{
+		m_deferredUpdate = true;
+	}
+	if (m_deferredUpdate)
+	{
 		TRACE("Deferred Update\n");
 		CPhotoDiode::m_enabled = m_photoDiodeEnabledCopy;
 		m_backgroundColor = m_backgroundColorCopy;
@@ -261,6 +276,7 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 				status = WaitForSingleObject(m_hDeferredUpdateDone, INFINITE);
 				ASSERT(status == WAIT_OBJECT_0);
 				if (message[1] != 0) {	// start deferred mode
+					VERIFY(ResetEvent(m_hEndDeferredMode));
 					theApp.m_deferredMode = true;
 					m_photoDiodeEnabledCopy = CPhotoDiode::m_enabled;
 					m_backgroundColorCopy = m_backgroundColor;
@@ -325,6 +341,9 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 				break;
 			case 10: // [00 1 10 gamma] set gamma correction exponent
 				CDisplay::InvertGammaExponent(*(float*)&message[2]);
+				break;
+			case 11: // [00 1 11] cancel deferred mode
+				theApp.m_deferredMode = false;
 			}
 			break;
 			/*
@@ -902,18 +921,21 @@ void CStimServerDoc::AddPhotoDiode(D2D1_RECT_F PDrect)
 
 void CStimServerDoc::OnCloseDocument()
 {
-	TRACE("Start of close document\n");
-	m_hCloseDocument = CreateEvent(NULL, false, false, NULL);
-	ASSERT(m_hCloseDocument != NULL);
-	m_valid = false;
-//	delete m_pPhotoDiode;
-//	m_pPhotoDiode = NULL;
-	WaitForSingleObject(m_hCloseDocument, INFINITE);
-	CloseHandle(m_hCloseDocument);
-	CPhotoDiode::Cleanup();
-	UnprotectAllStimuli();
-	RemoveAllStimuli();
-	TRACE("End of close document\n");
+	if (m_valid)
+	{
+		TRACE("Start of close document\n");
+		m_hCloseDocument = CreateEvent(NULL, false, false, NULL);
+		ASSERT(m_hCloseDocument != NULL);
+		m_valid = false;
+		//	delete m_pPhotoDiode;
+		//	m_pPhotoDiode = NULL;
+		WaitForSingleObject(m_hCloseDocument, INFINITE);
+		CloseHandle(m_hCloseDocument);
+		CPhotoDiode::Cleanup();
+		UnprotectAllStimuli();
+		RemoveAllStimuli();
+		TRACE("End of close document\n");
+	}
 
 	CDocument::OnCloseDocument();
 }

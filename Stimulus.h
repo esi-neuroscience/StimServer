@@ -52,7 +52,7 @@ protected:
 	void InvalidCommand(BYTE code);
 	static bool CreatePixelShaderTex(void);
 	WORD m_errorCode;
-	LPCTSTR m_typeName;
+	LPCTSTR m_typeName = _T("");
 };
 
 
@@ -73,15 +73,15 @@ protected:
 	void GetPos(float pos[2]);
 	void SetOrientation(float angle);
 	D2D1_MATRIX_3X2_F m_transform, m_transformCopy;
-	ID2D1SolidColorBrush* m_pBrush;
-	ID2D1SolidColorBrush* m_pOutlineBrush;
+	ID2D1SolidColorBrush* m_pBrush = NULL;
+	ID2D1SolidColorBrush* m_pOutlineBrush = NULL;
 	struct
 	{
 		D2D1_COLOR_F color;
 		D2D1_COLOR_F outlineColor;
 		float strokeWidth;
 		BYTE drawMode;
-	} m_deferableParams, m_deferableParamsCopy;
+	} m_deferableParams, m_deferableParamsCopy = { 0 };
 	union
 	{
 		unsigned char all;

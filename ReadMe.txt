@@ -210,14 +210,5 @@ redistributing Visual C++ applications in MSDN documentation.
 1.4.1.1  MSt 19-Nov-2019 linear range animation for wedge orientation
 1.4.2.0  JTS 20-Feb-2020 Support for gamma correction
 1.4.2.1  JTS 31-Mar-2020 changed size of non-fullscreen output window to 800x600 pixel
-
-
-
-
-
-
-
-
-
-
-
+1.4.2.2  MSt  3-Apr-2020 new command: cancel deferred mode
+                         support for StimServerEndDeferredMode event

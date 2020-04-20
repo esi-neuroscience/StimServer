@@ -29,7 +29,7 @@ public:
 		{
 			ASSERT(res == ERROR_SUCCESS);
 			TRACE("Registry key opened\n");
-			DWORD nData;
+			DWORD nData = 0;
 			res = RegQueryValueEx(
 				hkResult,
 				_T("Placement"),

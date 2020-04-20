@@ -64,10 +64,11 @@ private:
 //	CPhotoDiode* m_pPhotoDiode;
 	D2D1_COLOR_F m_backgroundColor;
 	bool m_photoDiodeEnabledCopy;
-	D2D1_COLOR_F m_backgroundColorCopy;
-	PDCSR m_PDCSRcopy;
+	D2D1_COLOR_F m_backgroundColorCopy = D2D1::ColorF(.5f, .5f, .5f, 1.f);
+	PDCSR m_PDCSRcopy = { 0,0 };
 	bool m_deferredUpdate;
 	HANDLE m_hDeferredUpdateDone;
+	HANDLE m_hEndDeferredMode;
 	void UnprotectAllStimuli(void);
 	void RemoveAllStimuli(void);
 public:

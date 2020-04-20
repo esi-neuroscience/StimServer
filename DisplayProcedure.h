@@ -14,7 +14,7 @@
 class CDisplay 
 {
 public:	
-	static UINT InitializeWindow();
+	static HRESULT InitializeWindow();
 	static UINT PresentLoop( LPVOID pParam );
 	static UINT InvertGammaExponent(float exponent);
 

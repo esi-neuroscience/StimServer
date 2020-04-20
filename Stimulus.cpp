@@ -152,6 +152,8 @@ bool CStimulus::SetAnimParam(BYTE mode, float value)
 }
 
 CD2DStimulus::CD2DStimulus(void)
+	: m_deferableParamsCopy({ 0 })
+	, m_transformCopy({0})
 {
 	HRESULT hr;
 	m_deferableParams.color = theApp.m_defaultDrawColor;
@@ -364,6 +366,8 @@ CLoadedStimulus::~CLoadedStimulus(void)
 
 
 C3DStimulus::C3DStimulus(void)
+	: m_vp({ 0 })
+	, m_vpCopy({ 0 })
 {
 }
 
@@ -436,6 +440,8 @@ IMPLEMENT_DYNAMIC( CStimulusPic, CLoadedStimulus)
 
 CStimulusPic::CStimulusPic()
 	: m_pBitmap(NULL)
+	, m_deferableParamsCopy({ 0 })
+	, m_destRect({ 0 })
 	, m_iPhi(0)
 {
 	m_deferableParams.alpha = 1.0f;
