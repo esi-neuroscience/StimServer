@@ -62,7 +62,7 @@ private:
 	virtual short AddAnimationObject(CAnim* pObject);
 	virtual short AddAnimationObject(CLoadedAnim* pObject, unsigned char filename[]);
 //	CPhotoDiode* m_pPhotoDiode;
-	D2D1_COLOR_F m_backgroundColor;
+	D2D1_COLOR_F m_backgroundColor = D2D1::ColorF(.5f, .5f, .5f, 1.f);
 	bool m_photoDiodeEnabledCopy;
 	D2D1_COLOR_F m_backgroundColorCopy = D2D1::ColorF(.5f, .5f, .5f, 1.f);
 	PDCSR m_PDCSRcopy = { 0,0 };

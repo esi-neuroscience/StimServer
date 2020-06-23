@@ -212,3 +212,4 @@ redistributing Visual C++ applications in MSDN documentation.
 1.4.2.1  JTS 31-Mar-2020 changed size of non-fullscreen output window to 800x600 pixel
 1.4.2.2  MSt  3-Apr-2020 new command: cancel deferred mode
                          support for StimServerEndDeferredMode event
+1.4.2.3 MSt  23-Jun-2020 bugfix: background color was not initialized
