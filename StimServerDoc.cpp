@@ -344,6 +344,11 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 				break;
 			case 11: // [00 1 11] cancel deferred mode
 				theApp.m_deferredMode = false;
+				break;
+			case 12:	// [00 1 12] query screen size
+				WritePipe(&g_frameRate, sizeof(g_frameRate));
+				return -1;
+				break;
 			}
 			break;
 			/*
