@@ -4,7 +4,7 @@
 #define _USE_MATH_DEFINES TRUE
 #include <math.h>
 
-extern D2D1_SIZE_F g_ScreenSize;
+extern D2D1_SIZE_U g_ScreenSize;
 
 CGeometryStimulus::CGeometryStimulus(void)
 {
@@ -307,7 +307,7 @@ void CWedge::Construct(void)
 	hr = m_pPathGeometry->Open(&pSink);
 	ASSERT(hr == S_OK);
 	D2D1_POINT_2F startPoint = { 0.0f, 0.0f };
-	float h = sqrtf(g_ScreenSize.width*g_ScreenSize.width + g_ScreenSize.height*g_ScreenSize.height);
+	float h = sqrtf((float) g_ScreenSize.width*g_ScreenSize.width + (float) g_ScreenSize.height*g_ScreenSize.height);
 	float x = h * tanf((m_wedgeParams.gamma / 2.0f) * (float) (M_PI / 180.0f));
 	D2D1_POINT_2F points[2] = { {h, -x}, {h,x} };
 	pSink->BeginFigure(startPoint, D2D1_FIGURE_BEGIN_FILLED);

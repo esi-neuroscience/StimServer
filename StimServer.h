@@ -79,4 +79,3 @@ public:
 };
 
 extern CStimServerApp theApp;
-//extern D2D1_SIZE_F g_ScreenSize;

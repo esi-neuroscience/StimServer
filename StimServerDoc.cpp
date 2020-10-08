@@ -172,7 +172,6 @@ void CStimServerDoc::Draw()
 //	WORD key;
 	CStimulus* pStimulus;
 
-//	if (m_pPhotoDiode == NULL) return false;
 	if (theApp.m_deferredMode) if (WaitForSingleObject(m_hEndDeferredMode, 0) == WAIT_OBJECT_0)
 	{
 		m_deferredUpdate = true;
@@ -206,9 +205,7 @@ void CStimServerDoc::Draw()
 	}
 	LeaveCriticalSection(&g_criticalMapSection);
 	if (CPhotoDiode::m_enabled) {
-//		if (m_pPhotoDiode == NULL) return false;
 		if (!theApp.m_drawMode) theApp.BeginDraw();
-//		m_pPhotoDiode->Draw();
 		CPhotoDiode::Draw();
 	}
 	if (theApp.m_drawMode) theApp.EndDraw();
@@ -915,14 +912,6 @@ short CStimServerDoc::AddAnimationObject(CLoadedAnim* pObject, unsigned char fil
 	return AddAnimationObject(pObject);
 }
 
-/*
-void CStimServerDoc::AddPhotoDiode(D2D1_RECT_F PDrect)
-{
-	m_pPhotoDiode = new CPhotoDiode(PDrect);
-//	D2D1_RECT_F PhotoDiodeRect = D2D1::RectF(contextSize.width/-2.f, contextSize.height/-2.f, contextSize.width/-2.f+15.f, contextSize.height/-2.f+15.f);
-//	bool PhotoDiode = false;
-}
-*/
 
 void CStimServerDoc::OnCloseDocument()
 {
@@ -932,8 +921,6 @@ void CStimServerDoc::OnCloseDocument()
 		m_hCloseDocument = CreateEvent(NULL, false, false, NULL);
 		ASSERT(m_hCloseDocument != NULL);
 		m_valid = false;
-		//	delete m_pPhotoDiode;
-		//	m_pPhotoDiode = NULL;
 		WaitForSingleObject(m_hCloseDocument, INFINITE);
 		CloseHandle(m_hCloseDocument);
 		CPhotoDiode::Cleanup();

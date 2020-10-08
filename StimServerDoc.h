@@ -61,7 +61,6 @@ private:
 	virtual short ReplaceStimulusObject(CLoadedStimulus* pObject, unsigned char filename[]);
 	virtual short AddAnimationObject(CAnim* pObject);
 	virtual short AddAnimationObject(CLoadedAnim* pObject, unsigned char filename[]);
-//	CPhotoDiode* m_pPhotoDiode;
 	D2D1_COLOR_F m_backgroundColor = D2D1::ColorF(.5f, .5f, .5f, 1.f);
 	bool m_photoDiodeEnabledCopy;
 	D2D1_COLOR_F m_backgroundColorCopy = D2D1::ColorF(.5f, .5f, .5f, 1.f);
@@ -76,7 +75,6 @@ public:
 	void Draw();
 	short Command(WORD key, unsigned char message[], DWORD messageLength);
 	virtual short ReplaceStimulusObject(CStimulus* pObject, WORD* pKey);
-//	void AddPhotoDiode(D2D1_RECT_F PDrect);
 	virtual void OnCloseDocument();
 	HANDLE m_hCloseDocument;
 	afx_msg void OnAppsBeamertest();

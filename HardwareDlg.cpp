@@ -6,7 +6,7 @@
 #include "HardwareDlg.h"
 #include "afxdialogex.h"
 
-extern D2D1_SIZE_F g_ScreenSize;
+extern D2D1_SIZE_U g_ScreenSize;
 extern float g_frameRate;
 extern CString g_adapterName;
 

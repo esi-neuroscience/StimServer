@@ -30,7 +30,7 @@ using namespace D2D1;
 extern HRESULT LogMediaType(IMFMediaType *pType);
 #endif
 
-extern D2D1_SIZE_F g_ScreenSize;
+extern D2D1_SIZE_U g_ScreenSize;
 extern CRITICAL_SECTION g_criticalMapSection;
 extern CRITICAL_SECTION g_criticalDrawSection;
 
@@ -382,15 +382,15 @@ void C3DStimulus::Moveto(bool deferred, float x, float y)
 {
 	D3D11_VIEWPORT* pVP = deferred ? &m_vpCopy : &m_vp;
     // Update the viewport
-	pVP->TopLeftX = (g_ScreenSize.width-pVP->Width)/2.0f + x;
-	pVP->TopLeftY = (g_ScreenSize.height-pVP->Height)/2.0f - y;
+	pVP->TopLeftX = ((float) g_ScreenSize.width-pVP->Width)/2.0f + x;
+	pVP->TopLeftY = ((float) g_ScreenSize.height-pVP->Height)/2.0f - y;
 }
 
 
 void C3DStimulus::GetPos(float pos[2])
 {
-	pos[0] = m_vp.TopLeftX - (g_ScreenSize.width-m_vp.Width)/2.0f;
-	pos[1] = (g_ScreenSize.height-m_vp.Height)/2.0f - m_vp.TopLeftY;
+	pos[0] = m_vp.TopLeftX - ((float) g_ScreenSize.width-m_vp.Width)/2.0f;
+	pos[1] = ((float) g_ScreenSize.height-m_vp.Height)/2.0f - m_vp.TopLeftY;
 }
 
 

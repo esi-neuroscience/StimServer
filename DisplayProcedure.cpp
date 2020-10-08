@@ -29,7 +29,7 @@ extern CStimServerApp theApp;
 //extern CRITICAL_SECTION g_criticalDrawSection;
 //extern CRITICAL_SECTION g_criticalDeviceSection;
 float g_frameRate;
-D2D1_SIZE_F g_ScreenSize;
+D2D1_SIZE_U g_ScreenSize;
 CString g_adapterName;
 
 // bool CStimServerDoc::m_valid = false;
@@ -413,10 +413,8 @@ HRESULT CDisplay::InitializeWindow()
 	FLOAT dpiY;
 	theApp.m_pContext->GetDpi(&dpiX, &dpiY);
 	TRACE(" DPIx: %f, DPIy: %f\n", dpiX, dpiY);
-	//	D2D1_SIZE_F contextSize = theApp.m_pContext->GetSize();
-	g_ScreenSize = theApp.m_pContext->GetSize();
-	//	TRACE(" SizeX: %f, SizeY: %f\n", contextSize.width, contextSize.height);
-	TRACE(" SizeX: %f, SizeY: %f\n", g_ScreenSize.width, g_ScreenSize.height);
+	g_ScreenSize = theApp.m_pContext->GetPixelSize();
+	TRACE(" SizeX: %u, SizeY: %u\n", g_ScreenSize.width, g_ScreenSize.height);
 
 	// Create a render target view
 	ID3D11Texture2D* pBackBufferPS = NULL;
@@ -521,10 +519,8 @@ HRESULT CDisplay::InitializeWindow()
 	if (FAILED(hr)) {
 		return hr;
 	}
-	//	CStimulusPixel::m_vp.Width = contextSize.width;
-	//	CStimulusPixel::m_vp.Height = contextSize.height;
-	CStimulusPixel::m_vp.Width = g_ScreenSize.width;
-	CStimulusPixel::m_vp.Height = g_ScreenSize.height;
+	CStimulusPixel::m_vp.Width = (float) g_ScreenSize.width;
+	CStimulusPixel::m_vp.Height = (float) g_ScreenSize.height;
 	CStimulusPixel::m_vp.MinDepth = 0.0f;
 	CStimulusPixel::m_vp.MaxDepth = 1.0f;
 
@@ -562,12 +558,7 @@ HRESULT CDisplay::InitializeWindow()
 
 
 
-	//	pDoc->AddPhotoDiode(D2D1::RectF(g_ScreenSize.width/-2.f, g_ScreenSize.height/-2.f,
-	//		g_ScreenSize.width/-2.f+15.f, g_ScreenSize.height/-2.f+15.f));
 	CPhotoDiode::Init();
-	//	VERIFY(theApp.m_pDisplayThread->SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL));
-	//	VERIFY(theApp.m_pDisplayThread->SetThreadPriority(THREAD_PRIORITY_HIGHEST));
-		//	unsigned int nErrors = 0;
 		/*
 		LARGE_INTEGER performanceFrequency;
 		LARGE_INTEGER preCount;
