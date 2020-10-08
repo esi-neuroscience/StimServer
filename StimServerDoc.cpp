@@ -21,6 +21,7 @@
 #define new DEBUG_NEW
 #endif
 
+extern D2D1_SIZE_U g_ScreenSize;
 extern float g_frameRate;
 extern CRITICAL_SECTION g_criticalMapSection;
 extern CRITICAL_SECTION g_criticalDrawSection;
@@ -343,7 +344,10 @@ short CStimServerDoc::Command(WORD key, unsigned char message[], DWORD messageLe
 				theApp.m_deferredMode = false;
 				break;
 			case 12:	// [00 1 12] query screen size
-				WritePipe(&g_frameRate, sizeof(g_frameRate));
+				WORD buffer[2];
+				buffer[0] = (WORD)g_ScreenSize.width;
+				buffer[1] = (WORD)g_ScreenSize.height;
+				WritePipe(&buffer, sizeof(buffer));
 				return -1;
 				break;
 			}
