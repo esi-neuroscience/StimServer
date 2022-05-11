@@ -78,7 +78,7 @@ HRESULT CDisplay::InitializeWindow()
 	monitorInfo.cbSize = sizeof(MONITORINFO);
 	BOOL haveSecondary = FALSE;
 	UINT i = 0;
-	DXGI_MODE_DESC1 modeDesc;
+	DXGI_MODE_DESC1 modeDesc = {};
 	UINT width;
 	UINT height;
 	while (pFactory->EnumAdapters(i++, (IDXGIAdapter**)&pAdapter) != DXGI_ERROR_NOT_FOUND)
